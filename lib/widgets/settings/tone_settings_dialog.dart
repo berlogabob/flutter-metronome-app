@@ -125,9 +125,11 @@ class _ToneSettingsDialogState extends ConsumerState<ToneSettingsDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Presets',
-                style: MonoPulseTypography.headlineSmall,
+                style: MonoPulseTypography.headlineSmall.copyWith(
+                  color: MonoPulseColors.textPrimary,
+                ),
               ),
               const SizedBox(height: MonoPulseSpacing.md),
               Wrap(
@@ -163,9 +165,11 @@ class _ToneSettingsDialogState extends ConsumerState<ToneSettingsDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Tone Matrix',
-                style: MonoPulseTypography.headlineSmall,
+                style: MonoPulseTypography.headlineSmall.copyWith(
+                  color: MonoPulseColors.textPrimary,
+                ),
               ),
               const SizedBox(height: MonoPulseSpacing.sm),
               Text(
@@ -355,9 +359,11 @@ class _ToneSettingsDialogState extends ConsumerState<ToneSettingsDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Wave Type',
-                style: MonoPulseTypography.headlineSmall,
+                style: MonoPulseTypography.headlineSmall.copyWith(
+                  color: MonoPulseColors.textPrimary,
+                ),
               ),
               const SizedBox(height: MonoPulseSpacing.md),
               SegmentedButton<String>(
@@ -404,9 +410,11 @@ class _ToneSettingsDialogState extends ConsumerState<ToneSettingsDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Volume',
-                style: MonoPulseTypography.headlineSmall,
+                style: MonoPulseTypography.headlineSmall.copyWith(
+                  color: MonoPulseColors.textPrimary,
+                ),
               ),
               const SizedBox(height: MonoPulseSpacing.md),
               Row(
