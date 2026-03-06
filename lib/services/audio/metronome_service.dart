@@ -49,7 +49,12 @@ class MetronomeService {
 
   /// Update beats per measure (backward compatibility)
   void setBeatsPerMeasure(int beats) {
-    _ref.read(metronomeProvider.notifier).setBeatsPerMeasure(beats);
+    // Riverpod 3.x: Use setTimeSignature instead
+    final timeSignature = TimeSignature(
+      numerator: beats,
+      denominator: 4,
+    );
+    _ref.read(metronomeProvider.notifier).setTimeSignature(timeSignature);
   }
 
   /// Set time signature with numerator and denominator

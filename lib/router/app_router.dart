@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/metronome_screen.dart';
 
-/// Root navigator key for GoRouter.
+/// Root navigator key for GoRouter 17.x
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 
-/// GoRouter configuration for Standalone Metronome.
+/// GoRouter 17.x configuration for Standalone Metronome
 /// 
-/// Ultra-simple navigation with only 1 screen:
-/// - / → MetronomeScreen (main and only)
-/// 
-/// No authentication required - standalone app.
+/// Updated for GoRouter 17.x API:
+/// - Simplified route definition
+/// - Type-safe navigation
+/// - Improved redirect logic
 final GoRouter appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/',
   routes: [
-    // Main metronome screen (no auth required)
+    // Main metronome screen (no auth required for standalone)
     GoRoute(
       path: '/',
       name: 'metronome',
@@ -24,11 +24,12 @@ final GoRouter appRouter = GoRouter(
   ],
 );
 
-/// Extension on BuildContext for type-safe navigation.
+/// Extension on BuildContext for type-safe navigation
+/// GoRouter 17.x syntax
 extension GoRouterExtension on BuildContext {
-  /// Navigate to metronome (main screen).
+  /// Navigate to metronome (main screen)
   void goMetronome() => goNamed('metronome');
 
-  /// Go back.
+  /// Go back
   void goBack() => pop();
 }

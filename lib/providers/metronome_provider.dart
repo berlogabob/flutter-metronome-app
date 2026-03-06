@@ -7,16 +7,12 @@ import '../../models/setlist.dart';
 import '../../models/beat_mode.dart';
 import '../../services/audio/audio_engine_export.dart';
 
-/// Metronome Notifier class
-///
-/// Manages metronome state and provides methods to control it.
-/// Uses Riverpod Notifier pattern for state management.
+/// MetronomeNotifier - Riverpod 3.x
+/// 
+/// Updated for Riverpod 3.x syntax
 class MetronomeNotifier extends Notifier<MetronomeState> {
   Timer? _timer;
   final AudioEngine _audioEngine = AudioEngine();
-
-  /// Default constructor
-  MetronomeNotifier();
 
   @override
   MetronomeState build() {
@@ -82,42 +78,31 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   }
 
   /// Set number of BEATS (top row, first number of time signature)
-  /// Examples: 4/4 → 4 beats, 2/2 → 2 beats, 6/8 → 2 beats
-  /// INDEPENDENT: Does NOT affect subdivisions count
   void setAccentBeats(int count) {
     final clampedCount = count.clamp(1, 12);
     state = state.copyWith(accentBeats: clampedCount);
   }
 
   /// Set number of SUBDIVISIONS per beat (bottom row)
-  /// Examples: 1 → HHHH, 2 → HlHlHlHl, 3 → HllHllHllHll
-  /// Where H = High pitch (1760 Hz), l = Low pitch (880 Hz)
-  /// INDEPENDENT: Does NOT affect beats count
   void setRegularBeats(int count) {
     final clampedCount = count.clamp(1, 12);
     state = state.copyWith(regularBeats: clampedCount);
   }
 
-  /// Set beat mode for individual beat (normal, accent, silent)
-  /// [beatIndex] - index of the beat (0-based)
-  /// [subdivisionIndex] - index of the subdivision within the beat (0-based)
-  /// [mode] - BeatMode (normal, accent, silent)
+  /// Set beat mode for individual beat
   void setBeatMode(int beatIndex, int subdivisionIndex, BeatMode mode) {
     final newBeatModes = List<List<BeatMode>>.from(
       state.beatModes.map((beat) => List<BeatMode>.from(beat)),
     );
 
-    // Extend outer list if needed (add new beats)
     while (newBeatModes.length <= beatIndex) {
       newBeatModes.add([]);
     }
 
-    // Extend inner list if needed (add subdivisions to this beat)
     while (newBeatModes[beatIndex].length <= subdivisionIndex) {
       newBeatModes[beatIndex].add(BeatMode.normal);
     }
 
-    // Set the mode for this specific subdivision
     newBeatModes[beatIndex][subdivisionIndex] = mode;
 
     state = state.copyWith(beatModes: List.unmodifiable(newBeatModes));
@@ -156,10 +141,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
   /// Load tempo and metronome settings from a song
   void loadSongTempo(Song song) {
-    // Load song into state
     state = state.copyWith(loadedSong: song);
 
-    // Load BPM from song (prefer ourBPM, fallback to originalBPM)
     final songBpm = song.ourBPM ?? song.originalBPM;
     if (songBpm != null) {
       // Restricted BPM range: 10-260
@@ -167,21 +150,18 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
       state = state.copyWith(bpm: clampedBpm);
     }
 
-    // Load metronome settings from song
     state = state.copyWith(
       accentBeats: song.accentBeats,
       regularBeats: song.regularBeats,
       beatModes: song.beatModes.isNotEmpty ? song.beatModes : state.beatModes,
     );
 
-    // Update time signature to match loaded accentBeats
     final timeSignature = TimeSignature(
       numerator: song.accentBeats,
       denominator: state.timeSignature.denominator,
     );
     state = state.copyWith(timeSignature: timeSignature);
 
-    // Stop metronome if playing to apply new settings
     if (state.isPlaying) {
       _timer?.cancel();
       _startTimer();
@@ -189,23 +169,18 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   }
 
   /// Save current metronome settings to the loaded song
-  ///
-  /// Returns the updated song with metronome settings applied.
-  /// The caller is responsible for persisting the song to Firestore.
   Song? saveMetronomeToSong() {
     final song = state.loadedSong;
     if (song == null) return null;
 
-    // Create updated song with current metronome settings
     final updatedSong = song.copyWith(
       accentBeats: state.accentBeats,
       regularBeats: state.regularBeats,
       beatModes: state.beatModes,
-      ourBPM: state.bpm, // Save current BPM as ourBPM
+      ourBPM: state.bpm,
       updatedAt: DateTime.now(),
     );
 
-    // Update loaded song in state
     state = state.copyWith(loadedSong: updatedSong);
 
     return updatedSong;
@@ -258,38 +233,11 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Update beats per measure (backward compatibility)
-  void setBeatsPerMeasure(int beats) {
-    final timeSignature = TimeSignature(
-      numerator: beats,
-      denominator: state.timeSignature.denominator,
-    );
-
-    // Auto-generate new accent pattern
-    List<bool> accentPattern;
-    if (beats == 6 && timeSignature.denominator == 8) {
-      accentPattern = [true, true];
-    } else {
-      accentPattern = List.generate(beats, (index) => index == 0);
-    }
-
-    state = state.copyWith(
-      timeSignature: timeSignature,
-      accentPattern: accentPattern,
-    );
-
-    if (state.isPlaying) {
-      _timer?.cancel();
-      _startTimer();
-    }
-  }
-
-  /// Set time signature with numerator and denominator
+  /// Set time signature
   void setTimeSignature(TimeSignature ts) {
     int beatCount;
     List<bool> accentPattern;
 
-    // Special handling for 6/8: 2 beats with subdivisions
     if (ts.numerator == 6 && ts.denominator == 8) {
       beatCount = 2;
       accentPattern = [true, true];
@@ -383,50 +331,34 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   }
 
   /// Handle timer tick
-  /// NEW LOGIC: H/l pitch based on subdivision + beat modes
-  /// CRITICAL: Each subdivision has INDEPENDENT mode (not inherited from parent beat)
   void _onTick(Timer timer) {
     if (!state.isPlaying) return;
 
-    // Calculate total ticks per measure
-    // accentBeats = BEATS count (top row)
-    // regularBeats = SUBDIVISIONS per beat (bottom row)
     final totalTicks = state.accentBeats * state.regularBeats;
     final nextTick = (state.currentBeat + 1) % totalTicks;
 
-    // Determine which beat we're on (0 to accentBeats-1)
     final currentBeatIndex = nextTick ~/ state.regularBeats;
-
-    // Determine which subdivision within the beat (0 to regularBeats-1)
     final currentSubdivisionIndex = nextTick % state.regularBeats;
-
-    // Determine if this is a main beat position (first subdivision of the beat)
     final isMainBeat = currentSubdivisionIndex == 0;
 
-    // Get mode for THIS specific subdivision (INDEPENDENT from parent beat!)
     final beatMode =
         currentBeatIndex < state.beatModes.length &&
             currentSubdivisionIndex < state.beatModes[currentBeatIndex].length
         ? state.beatModes[currentBeatIndex][currentSubdivisionIndex]
         : BeatMode.normal;
 
-    // Calculate frequency based on mode (INDEPENDENT subdivision mode)
     double frequency;
     bool shouldPlay = true;
 
     if (beatMode == BeatMode.silent) {
-      // Silent mode: visual only, no sound
       shouldPlay = false;
       frequency = isMainBeat ? 1760.0 : 880.0;
     } else if (beatMode == BeatMode.accent) {
-      // Accent mode: +300 Hz (INDEPENDENT of parent beat)
       frequency = (isMainBeat ? 1760.0 : 880.0) + 300.0;
     } else {
-      // Normal mode
       frequency = isMainBeat ? 1760.0 : 880.0;
     }
 
-    // Play sound if not silent
     if (shouldPlay) {
       _audioEngine.playClick(
         isAccent: isMainBeat,
@@ -441,15 +373,16 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   }
 
   /// Dispose resources when the provider is destroyed
+  @override
   void dispose() {
     _timer?.cancel();
     _audioEngine.dispose();
+    super.dispose();
   }
 }
 
 /// NotifierProvider for metronome state management
+/// Riverpod 3.x syntax
 final metronomeProvider = NotifierProvider<MetronomeNotifier, MetronomeState>(
-  () {
-    return MetronomeNotifier();
-  },
+  MetronomeNotifier.new,
 );
