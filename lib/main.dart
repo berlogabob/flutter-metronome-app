@@ -8,11 +8,9 @@ import 'router/app_router.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize dotenv for environment variables
-  await dotenv.load(fileName: '.env');
-  
-  // Debug: Check if API key is loaded
-  debugPrint('Firebase API Key loaded: ${dotenv.env['FIREBASE_API_KEY'] != null}');
+  // Note: .env file is not bundled with APK/IPA
+  // Firebase API key is loaded from fallback in firebase_options.dart
+  // For production, use proper Firebase configuration
   
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
