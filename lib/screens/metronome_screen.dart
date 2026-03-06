@@ -8,6 +8,7 @@ import '../widgets/metronome/central_tempo_circle.dart';
 import '../widgets/metronome/fine_adjustment_buttons.dart';
 import '../widgets/metronome/song_library_block.dart';
 import '../widgets/metronome/bottom_transport_bar.dart';
+import '../widgets/settings/tone_settings_dialog.dart';
 import '../../models/song.dart';
 import '../../models/metronome_state.dart';
 import '../../services/firestore_service.dart';
@@ -105,6 +106,27 @@ class _MetronomeScreenState extends ConsumerState<MetronomeScreen> {
   ) {
     final items = <PopupMenuItem<void>>[];
 
+    // Tone Settings (FIRST item)
+    items.add(
+      PopupMenuItem<void>(
+        child: Row(
+          children: [
+            const Icon(
+              Icons.tune_outlined,
+              color: MonoPulseColors.accentOrange,
+              size: 20,
+            ),
+            const SizedBox(width: MonoPulseSpacing.md),
+            const Text(
+              'Tone Settings',
+              style: MonoPulseTypography.bodyMedium,
+            ),
+          ],
+        ),
+        onTap: () => _openToneSettings(context),
+      ),
+    );
+
     // Save to Song (only shown when song is loaded)
     if (state.loadedSong != null) {
       items.add(
@@ -187,6 +209,15 @@ class _MetronomeScreenState extends ConsumerState<MetronomeScreen> {
     );
 
     return items;
+  }
+
+  /// Open tone settings fullscreen dialog
+  void _openToneSettings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ToneSettingsDialog(),
+      ),
+    );
   }
 
   /// Save current metronome settings to the loaded song
