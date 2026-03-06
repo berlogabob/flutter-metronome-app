@@ -50,12 +50,11 @@ class CustomAppBar {
           if (onBack != null) {
             onBack();
           } else {
-            // For StatefulShellRoute (Metronome/Tuner), always go home
+            // For metronome screen, go to home
             // For normal routes, use pop
             final currentRoute = GoRouterState.of(context).uri.path;
-            if (currentRoute.startsWith('/main/metronome') ||
-                currentRoute.startsWith('/main/tuner')) {
-              context.go('/main/home');
+            if (currentRoute.startsWith('/metronome')) {
+              context.go('/');
             } else {
               context.pop();
             }
@@ -158,12 +157,11 @@ class CustomAppBar {
           if (onBack != null) {
             onBack();
           } else {
-            // For StatefulShellRoute (Metronome/Tuner), always go home
+            // For metronome screen, go to home
             // For normal routes, use pop
             final currentRoute = GoRouterState.of(context).uri.path;
-            if (currentRoute.startsWith('/main/metronome') ||
-                currentRoute.startsWith('/main/tuner')) {
-              context.go('/main/home');
+            if (currentRoute.startsWith('/metronome')) {
+              context.go('/');
             } else {
               context.pop();
             }
