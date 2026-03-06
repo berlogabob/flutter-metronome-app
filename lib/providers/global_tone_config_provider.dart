@@ -1,5 +1,6 @@
 // Provider for global metronome tone configuration
 // Saved to user preferences, applied to all songs
+// Updated for Riverpod 3.x
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/metronome_tone_config.dart';
 
 /// Provider for global tone configuration
+/// Riverpod 3.x syntax
 final globalToneConfigProvider = StateNotifierProvider<GlobalToneConfigNotifier, MetronomeToneConfig>(
   (ref) => GlobalToneConfigNotifier(),
 );
