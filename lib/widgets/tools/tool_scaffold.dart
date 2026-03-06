@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/mono_pulse_theme.dart';
-import '../../widgets/offline_indicator.dart';
 import '../../widgets/custom_app_bar.dart';
 
 /// Responsive breakpoint system for tool screens.
@@ -122,9 +121,6 @@ class ToolScreenScaffold extends StatelessWidget {
   /// Menu items for 3-dot menu.
   final List<PopupMenuEntry<dynamic>>? menuItems;
 
-  /// Whether to show offline indicator.
-  final bool showOfflineIndicator;
-
   const ToolScreenScaffold({
     super.key,
     required this.title,
@@ -132,7 +128,6 @@ class ToolScreenScaffold extends StatelessWidget {
     this.secondaryWidget,
     this.bottomWidget,
     this.menuItems,
-    this.showOfflineIndicator = true,
   });
 
   @override
@@ -150,7 +145,6 @@ class ToolScreenScaffold extends StatelessWidget {
         body: SafeArea(
           child: Column(
             children: [
-              if (showOfflineIndicator) const OfflineIndicator.banner(),
               // Main tool widget (expandable)
               Expanded(flex: 1, child: mainWidget),
               // Secondary widget (optional, fixed height)
