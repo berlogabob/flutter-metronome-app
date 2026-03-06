@@ -1,0 +1,1 @@
+wakeup all agents. working in parralel scan all repository. create full project audition. dont fix anythig untill full scan is complete. prepare report. no fancy decoration only simple text and tables. less words - distilled style. 
