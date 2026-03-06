@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is the owner
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Helper function to get band data from global collection
+    function getGlobalBand(bandId) {
+      return get(/databases/$(database)/documents/bands/$(bandId)).data;
+    }
+
+    // Helper function to check if user is a member of a global band
+    // Uses memberUids array for efficient lookup (no map/filter available in rules)
+    function isGlobalBandMember(bandId) {
+      let band = getGlobalBand(bandId);
+      return band != null &&
+        band.memberUids.hasAny([request.auth.uid]);
+    }
+
+    // Helper function to check if user is an admin of a global band
+    // Uses memberUids and adminUids arrays for efficient lookup
+    // NOTE: Handles missing fields by checking if field exists
+    function isGlobalBandAdmin(bandId) {
+      let band = getGlobalBand(bandId);
+      return band != null &&
+        band.adminUids != null &&
+        band.adminUids.hasAny([request.auth.uid]);
+    }
+
+    // Helper function to check if user is an editor or admin of a global band
+    // Uses editorUids and adminUids arrays for efficient lookup
+    // NOTE: Handles missing/null fields by checking existence first
+    function isGlobalBandEditorOrAdmin(bandId) {
+      let band = getGlobalBand(bandId);
+      let isAdmin = band != null && band.adminUids != null && 
+                    band.adminUids.hasAny([request.auth.uid]);
+      let isEditor = band != null && band.editorUids != null && 
+                     band.editorUids.hasAny([request.auth.uid]);
+      return isAdmin || isEditor;
+    }
+
+    // Helper function to check if creating user is in members list
+    function isCreatorInMembers(memberUids) {
+      return memberUids.hasAny([request.auth.uid]);
+    }
+
+    // Helper function to check if user is adding themselves to members
+    // Used for join band flow - user can add themselves but not modify others
+    function isSelfJoinOnly(bandId) {
+      let existingBand = getGlobalBand(bandId);
+      let newMemberUids = request.resource.data.memberUids;
+      // User can only join if:
+      // 1. Band exists
+      // 2. User is not already a member
+      // 3. New members = existing members + current user
+      return existingBand != null &&
+        !existingBand.memberUids.hasAny([request.auth.uid]) &&
+        newMemberUids.hasAll(existingBand.memberUids) &&
+        newMemberUids.hasAll([request.auth.uid]) &&
+        newMemberUids.size() == existingBand.memberUids.size() + 1;
+    }
+
+    // ============================================================
+    // Global Bands Collection
+    // ============================================================
+    // Stores all bands in a single collection for cross-user access
+    match /bands/{bandId} {
+      // Any authenticated user can read bands (needed for join by code)
+      allow read: if isAuthenticated();
+
+      // Create: Any authenticated user can create a band (must be in members list)
+      allow create: if isAuthenticated() &&
+        isCreatorInMembers(request.resource.data.memberUids);
+
+      // Update: Only band admins can update band details
+      // OR user can add themselves to members (join band flow)
+      allow update: if isAuthenticated() && (
+        isGlobalBandAdmin(bandId) || 
+        isSelfJoinOnly(bandId)
+      );
+
+      // Delete: Only band admins can delete a band
+      allow delete: if isAuthenticated() && isGlobalBandAdmin(bandId);
+    }
+
+    // ============================================================
+    // Band Songs Subcollection
+    // ============================================================
+    // Songs stored under bands for collaborative band repertoire
+    match /bands/{bandId}/songs/{songId} {
+      // Band members can read
+      allow read: if isAuthenticated() && isGlobalBandMember(bandId);
+
+      // Band editors/admins can create
+      allow create: if isAuthenticated() && isGlobalBandEditorOrAdmin(bandId);
+
+      // Band editors/admins can update
+      allow update: if isAuthenticated() && isGlobalBandEditorOrAdmin(bandId);
+
+      // Band admins can delete
+      allow delete: if isAuthenticated() && isGlobalBandAdmin(bandId);
+    }
+
+    // ============================================================
+    // Users Collection - each user has their own subcollections
+    // ============================================================
+    match /users/{userId} {
+      // Allow users to read/write their own user document
+      allow read, write: if isAuthenticated() && isOwner(userId);
+
+      // Songs subcollection - only owner can read/write
+      match /songs/{songId} {
+        allow read, write: if isAuthenticated() && isOwner(userId);
+      }
+
+      // Bands subcollection - stores references to global bands
+      // Band members can read, owner can write
+      match /bands/{bandId} {
+        allow read: if isAuthenticated() && (isOwner(userId) || isGlobalBandMember(bandId));
+        allow write: if isAuthenticated() && isOwner(userId);
+        allow create: if isAuthenticated() && isOwner(userId);
+        allow delete: if isAuthenticated() && isOwner(userId);
+
+        // Band members subcollection (legacy, kept for compatibility)
+        match /members/{memberId} {
+          allow read: if isAuthenticated() && (isOwner(userId) || isGlobalBandMember(bandId));
+          allow write: if isAuthenticated() && isOwner(userId);
+        }
+      }
+
+      // Setlists subcollection - TEMPORARILY RELAXED for data migration
+      // Allow any authenticated user to read/write their own setlists
+      // No validation on data format (allows invalid dates temporarily)
+      match /setlists/{setlistId} {
+        allow read, write, delete: if isAuthenticated() && isOwner(userId);
+      }
+    }
+  }
+}
