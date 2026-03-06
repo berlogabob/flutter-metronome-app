@@ -1,6 +1,6 @@
 // Provider for global metronome tone configuration
 // Saved to user preferences, applied to all songs
-// Updated for Riverpod 3.x
+// Updated for Riverpod 3.x - using Provider pattern
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,16 +8,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/metronome_tone_config.dart';
 
 /// Provider for global tone configuration
-/// Riverpod 3.x syntax
-final globalToneConfigProvider = StateNotifierProvider<GlobalToneConfigNotifier, MetronomeToneConfig>(
-  (ref) => GlobalToneConfigNotifier(),
+/// Riverpod 3.x - Async provider with SharedPreferences
+final globalToneConfigProvider = AsyncNotifierProvider<GlobalToneConfigNotifier, MetronomeToneConfig>(
+  GlobalToneConfigNotifier.new,
 );
 
 /// Notifier for global tone configuration
-/// Loads/saves from SharedPreferences
-class GlobalToneConfigNotifier extends StateNotifier<MetronomeToneConfig> {
-  GlobalToneConfigNotifier() : super(const MetronomeToneConfig()) {
-    _loadFromPrefs();
+class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
+  @override
+  Future<MetronomeToneConfig> build() async {
+    return _loadFromPrefs();
   }
 
   /// Storage keys
@@ -31,11 +31,11 @@ class GlobalToneConfigNotifier extends StateNotifier<MetronomeToneConfig> {
   static const String _keyVolume = 'tone_volume';
 
   /// Load configuration from SharedPreferences
-  Future<void> _loadFromPrefs() async {
+  Future<MetronomeToneConfig> _loadFromPrefs() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       
-      state = MetronomeToneConfig(
+      return MetronomeToneConfig(
         mainRegularFreq: prefs.getDouble(_keyMainRegular) ?? 1600.0,
         mainAccentFreq: prefs.getDouble(_keyMainAccent) ?? 2060.0,
         subRegularFreq: prefs.getDouble(_keySubRegular) ?? 800.0,
@@ -45,10 +45,9 @@ class GlobalToneConfigNotifier extends StateNotifier<MetronomeToneConfig> {
         waveType: prefs.getString(_keyWaveType) ?? 'sine',
         volume: prefs.getDouble(_keyVolume) ?? 0.75,
       );
-      
-      debugPrint('[GlobalToneConfig] Loaded from prefs');
     } catch (e) {
       debugPrint('[GlobalToneConfig] Failed to load: $e');
+      return const MetronomeToneConfig();
     }
   }
 
@@ -74,44 +73,66 @@ class GlobalToneConfigNotifier extends StateNotifier<MetronomeToneConfig> {
 
   /// Update frequency for specific beat type and accent
   Future<void> updateFrequency(BeatType beatType, AccentState accent, double frequency) async {
-    state = switch (beatType) {
+    final current = await future;
+    final updated = switch (beatType) {
       BeatType.main => switch (accent) {
-          AccentState.regular => state.copyWith(mainRegularFreq: frequency),
-          AccentState.accent => state.copyWith(mainAccentFreq: frequency),
+          AccentState.regular => current.copyWith(mainRegularFreq: frequency),
+          AccentState.accent => current.copyWith(mainAccentFreq: frequency),
         },
       BeatType.sub => switch (accent) {
-          AccentState.regular => state.copyWith(subRegularFreq: frequency),
-          AccentState.accent => state.copyWith(subAccentFreq: frequency),
+          AccentState.regular => current.copyWith(subRegularFreq: frequency),
+          AccentState.accent => current.copyWith(subAccentFreq: frequency),
         },
       BeatType.divider => switch (accent) {
-          AccentState.regular => state.copyWith(dividerRegularFreq: frequency),
-          AccentState.accent => state.copyWith(dividerAccentFreq: frequency),
+          AccentState.regular => current.copyWith(dividerRegularFreq: frequency),
+          AccentState.accent => current.copyWith(dividerAccentFreq: frequency),
         },
     };
-    await _saveToPrefs(state);
+    
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _saveToPrefs(updated);
+      return updated;
+    });
   }
 
   /// Update wave type
   Future<void> setWaveType(String waveType) async {
-    state = state.copyWith(waveType: waveType);
-    await _saveToPrefs(state);
+    final current = await future;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final updated = current.copyWith(waveType: waveType);
+      await _saveToPrefs(updated);
+      return updated;
+    });
   }
 
   /// Update volume
   Future<void> setVolume(double volume) async {
-    state = state.copyWith(volume: volume);
-    await _saveToPrefs(state);
+    final current = await future;
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      final updated = current.copyWith(volume: volume);
+      await _saveToPrefs(updated);
+      return updated;
+    });
   }
 
   /// Load preset
   Future<void> loadPreset(MetronomeToneConfig preset) async {
-    state = preset;
-    await _saveToPrefs(state);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _saveToPrefs(preset);
+      return preset;
+    });
   }
 
   /// Reset to classic default
   Future<void> resetToClassic() async {
-    state = MetronomeToneConfig.classic;
-    await _saveToPrefs(state);
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(() async {
+      await _saveToPrefs(MetronomeToneConfig.classic);
+      return MetronomeToneConfig.classic;
+    });
   }
 }
