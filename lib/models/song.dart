@@ -14,53 +14,112 @@ class _Sentinel {
   String toString() => '_sentinel';
 }
 
+/// Song model for the metronome app.
+///
+/// Represents a musical song with metadata, metronome settings,
+/// and optional song structure sections. Supports both personal
+/// and band-shared songs with contribution tracking.
+///
+/// Example usage:
+/// ```dart
+/// final song = Song(
+///   id: 'song123',
+///   title: 'Wonderwall',
+///   artist: 'Oasis',
+///   ourBPM: 87,
+///   accentBeats: 4,
+///   regularBeats: 1,
+///   createdAt: DateTime.now(),
+///   updatedAt: DateTime.now(),
+/// );
+/// ```
 @JsonSerializable()
 class Song {
+  /// Unique identifier for the song.
   @JsonKey(defaultValue: '')
   final String id;
+
+  /// Song title.
   @JsonKey(defaultValue: '')
   final String title;
+
+  /// Artist or band name.
   @JsonKey(defaultValue: '')
   final String artist;
+
+  /// Original musical key (e.g., 'C', 'Gm', 'Eb').
   final String? originalKey;
+
+  /// Original tempo in beats per minute.
   final int? originalBPM;
+
+  /// Performance key used by the band (may differ from original).
   final String? ourKey;
+
+  /// Performance tempo used by the band (may differ from original).
   final int? ourBPM;
+
+  /// External resource links (YouTube, Spotify, etc.).
   @JsonKey(defaultValue: [], fromJson: _linksFromJson, toJson: _linksToJson)
   final List<Link> links;
+
+  /// Performance notes and instructions.
   final String? notes;
+
+  /// Tags for organization and filtering.
   @JsonKey(defaultValue: [])
   final List<String> tags;
+
+  /// ID of the band this song belongs to (null for personal songs).
   final String? bandId;
+
+  /// Spotify URL for the song.
   final String? spotifyUrl;
+
+  /// Creation timestamp.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime createdAt;
+
+  /// Last update timestamp.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime updatedAt;
 
   // NEW: Sharing fields for copying songs from personal banks to band banks
-  final String? originalOwnerId; // User who created original song
-  final String?
-  originalSongId; // ID of the original personal song (for comparison)
-  final String? contributedBy; // User who added to band
+  /// User ID who created the original song.
+  final String? originalOwnerId;
+
+  /// ID of the original personal song (for comparison and deduplication).
+  final String? originalSongId;
+
+  /// Display name of user who contributed this song to the band.
+  final String? contributedBy;
+
+  /// Whether this is a copy of an original personal song.
   @JsonKey(defaultValue: false)
-  final bool isCopy; // True if this is a band's copy
+  final bool isCopy;
+
+  /// Timestamp when the song was contributed to the band.
   @JsonKey(fromJson: _parseNullableDateTime, toJson: _dateTimeToJson)
-  final DateTime? contributedAt; // When added to band
+  final DateTime? contributedAt;
 
   // Metronome settings
+  /// Beats per measure (top number of time signature).
   @JsonKey(defaultValue: 4)
-  final int accentBeats; // Beats per measure (top row, first number)
+  final int accentBeats;
+
+  /// Subdivisions per beat (bottom number of time signature).
   @JsonKey(defaultValue: 1)
-  final int regularBeats; // Subdivisions per beat (bottom row)
+  final int regularBeats;
+
+  /// 2D grid of beat modes for individual beat customization.
   @JsonKey(
     defaultValue: [],
     fromJson: _beatModesFromJson,
     toJson: _beatModesToJson,
   )
-  final List<List<BeatMode>> beatModes; // 2D: beats × subdivisions (independent modes)
+  final List<List<BeatMode>> beatModes;
 
-  /// Song structure sections.
+  /// Song structure sections (Verse, Chorus, Bridge, etc.).
   @JsonKey(
     defaultValue: [],
     fromJson: _sectionsFromJson,
@@ -72,30 +131,43 @@ class Song {
   // MATCHING & EXTERNAL IDS (for song deduplication and APIs)
   // ============================================================
 
-  /// External IDs for cross-referencing with music databases
-  final String? spotifyId; // Spotify track ID
-  final String? musicbrainzId; // MusicBrainz recording ID
-  final String? isrc; // International Standard Recording Code
-  final String? deezerId; // Deezer track ID
+  /// Spotify track ID for cross-referencing.
+  final String? spotifyId;
 
-  /// Cached normalized fields for faster search
-  final String? normalizedTitle; // Normalized title for matching
-  final String? normalizedArtist; // Normalized artist for matching
+  /// MusicBrainz recording ID for cross-referencing.
+  final String? musicbrainzId;
 
-  /// Phonetic codes for sound-alike matching
-  final String? titleSoundex; // Soundex code for title
-  final String? artistSoundex; // Soundex code for artist
+  /// International Standard Recording Code.
+  final String? isrc;
 
-  /// Duration in milliseconds (for matching)
+  /// Deezer track ID for cross-referencing.
+  final String? deezerId;
+
+  /// Normalized title for faster search and matching.
+  final String? normalizedTitle;
+
+  /// Normalized artist name for faster search and matching.
+  final String? normalizedArtist;
+
+  /// Soundex phonetic code for title (sound-alike matching).
+  final String? titleSoundex;
+
+  /// Soundex phonetic code for artist (sound-alike matching).
+  final String? artistSoundex;
+
+  /// Duration in milliseconds (for matching and display).
   final int? durationMs;
 
-  /// Album name (for matching)
+  /// Album name (for matching and organization).
   final String? album;
 
-  /// Song variant information
-  final String? variantType; // 'original', 'live', 'acoustic', 'remix', etc.
-  final String? variantOf; // ID of original song if this is a variant
+  /// Variant type: 'original', 'live', 'acoustic', 'remix', etc.
+  final String? variantType;
 
+  /// ID of original song if this is a variant.
+  final String? variantOf;
+
+  /// Creates a new [Song] with the specified values.
   Song({
     required this.id,
     required this.title,
@@ -238,8 +310,14 @@ class Song {
     );
   }
 
+  /// Converts this song to JSON format.
+  ///
+  /// Used for serializing to Firestore.
   Map<String, dynamic> toJson() => _$SongToJson(this);
 
+  /// Creates a [Song] from JSON data.
+  ///
+  /// Used for deserializing Firestore documents.
   factory Song.fromJson(Map<String, dynamic> json) => _$SongFromJson(json);
 }
 

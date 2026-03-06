@@ -256,7 +256,7 @@ class ToolBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectivePadding = padding ?? EdgeInsets.all(ToolSpacing.lg(context));
 
-    final child_widget = Padding(padding: effectivePadding, child: child);
+    final childWidget = Padding(padding: effectivePadding, child: child);
 
     if (showCard) {
       return Card(
@@ -282,12 +282,12 @@ class ToolBlock extends StatelessWidget {
               ),
               const Divider(height: 1, color: MonoPulseColors.borderSubtle),
             ],
-            child_widget,
+            childWidget,
           ],
         ),
       );
     }
 
-    return child_widget;
+    return childWidget;
   }
 }

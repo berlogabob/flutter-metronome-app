@@ -49,44 +49,60 @@ class BottomTransportBar extends ConsumerWidget {
         children: [
           // Previous button (only if setlist loaded)
           if (hasSetlist) ...[
-            _NavigationButton(
-              icon: Icons.fast_rewind,
-              onTap: () {
-                HapticFeedback.lightImpact();
-                metronome.previousSetlistSong();
-              },
-              isEnabled: state.currentSetlistIndex > 0,
-              buttonSize: navButtonSize,
-              iconSize: navIconSize,
+            Semantics(
+              label: state.currentSetlistIndex > 0 ? 'Previous song in setlist' : 'Previous song unavailable',
+              button: true,
+              hidden: state.currentSetlistIndex <= 0,
+              child: _NavigationButton(
+                icon: Icons.fast_rewind,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  metronome.previousSetlistSong();
+                },
+                isEnabled: state.currentSetlistIndex > 0,
+                buttonSize: navButtonSize,
+                iconSize: navIconSize,
+              ),
             ),
             SizedBox(width: buttonSpacing),
           ],
 
           // Play/Pause button (center)
-          _PlayButton(
-            isPlaying: isPlaying,
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              metronome.toggle();
-            },
-            buttonWidth: playButtonWidth,
-            buttonHeight: playButtonHeight,
+          Semantics(
+            label: isPlaying ? 'Pause metronome' : 'Play metronome',
+            button: true,
+            child: _PlayButton(
+              isPlaying: isPlaying,
+              onTap: () {
+                HapticFeedback.mediumImpact();
+                metronome.toggle();
+              },
+              buttonWidth: playButtonWidth,
+              buttonHeight: playButtonHeight,
+            ),
           ),
 
           // Next button (only if setlist loaded)
           if (hasSetlist) ...[
             SizedBox(width: buttonSpacing),
-            _NavigationButton(
-              icon: Icons.fast_forward,
-              onTap: () {
-                HapticFeedback.lightImpact();
-                metronome.nextSetlistSong();
-              },
-              isEnabled:
-                  state.currentSetlistIndex <
-                  state.loadedSetlist!.songIds.length - 1,
-              buttonSize: navButtonSize,
-              iconSize: navIconSize,
+            Semantics(
+              label: state.currentSetlistIndex < state.loadedSetlist!.songIds.length - 1
+                  ? 'Next song in setlist'
+                  : 'Next song unavailable',
+              button: true,
+              hidden: state.currentSetlistIndex >= state.loadedSetlist!.songIds.length - 1,
+              child: _NavigationButton(
+                icon: Icons.fast_forward,
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  metronome.nextSetlistSong();
+                },
+                isEnabled:
+                    state.currentSetlistIndex <
+                    state.loadedSetlist!.songIds.length - 1,
+                buttonSize: navButtonSize,
+                iconSize: navIconSize,
+              ),
             ),
           ],
         ],
@@ -160,31 +176,35 @@ class _PlayButtonState extends State<_PlayButton>
     // Adaptive icon size based on button size
     final iconSize = widget.buttonWidth * 0.6;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: _isPressed
-            ? 0.95
-            : (_pulseController.isAnimating ? _pulseAnimation.value : 1.0),
-        duration: MonoPulseAnimation.durationShort,
-        curve: MonoPulseAnimation.curveCustom,
-        child: Container(
-          // Minimum 48px touch zone (adaptive size)
-          width: widget.buttonWidth,
-          height: widget.buttonHeight,
-          decoration: BoxDecoration(
-            color: MonoPulseColors.accentOrange,
-            borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
-          ),
-          child: Icon(
-            widget.isPlaying ? Icons.pause : Icons.play_arrow,
-            color: MonoPulseColors.black,
-            size: iconSize,
+    return Semantics(
+      label: widget.isPlaying ? 'Pause' : 'Play',
+      button: true,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          widget.onTap();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: _isPressed
+              ? 0.95
+              : (_pulseController.isAnimating ? _pulseAnimation.value : 1.0),
+          duration: MonoPulseAnimation.durationShort,
+          curve: MonoPulseAnimation.curveCustom,
+          child: Container(
+            // Minimum 48px touch zone (adaptive size)
+            width: widget.buttonWidth,
+            height: widget.buttonHeight,
+            decoration: BoxDecoration(
+              color: MonoPulseColors.accentOrange,
+              borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
+            ),
+            child: Icon(
+              widget.isPlaying ? Icons.pause : Icons.play_arrow,
+              color: MonoPulseColors.black,
+              size: iconSize,
+            ),
           ),
         ),
       ),
@@ -219,51 +239,58 @@ class _NavigationButtonState extends State<_NavigationButton> {
     final isEnabled = widget.isEnabled;
     final isPressed = _isPressed && isEnabled;
 
-    return GestureDetector(
-      onTapDown: (_) {
-        if (isEnabled) {
-          setState(() => _isPressed = true);
-          HapticFeedback.vibrate();
-        }
-      },
-      onTapUp: (_) {
-        if (isEnabled) {
-          setState(() => _isPressed = false);
-          HapticFeedback.vibrate();
-          widget.onTap();
-        }
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: isPressed ? 0.95 : 1.0,
-        duration: MonoPulseAnimation.durationShort,
-        curve: MonoPulseAnimation.curveCustom,
-        child: Container(
-          // Minimum 48px touch zone (adaptive size)
-          width: widget.buttonSize,
-          height: widget.buttonSize,
-          decoration: BoxDecoration(
-            color: isPressed
-                ? MonoPulseColors.accentOrange.withValues(alpha: 0.2)
-                : MonoPulseColors.blackElevated,
-            shape: BoxShape.circle,
-            border: Border.all(
+    return Semantics(
+      label: widget.icon == Icons.fast_rewind
+          ? 'Previous'
+          : 'Next',
+      button: true,
+      enabled: isEnabled,
+      child: GestureDetector(
+        onTapDown: (_) {
+          if (isEnabled) {
+            setState(() => _isPressed = true);
+            HapticFeedback.vibrate();
+          }
+        },
+        onTapUp: (_) {
+          if (isEnabled) {
+            setState(() => _isPressed = false);
+            HapticFeedback.vibrate();
+            widget.onTap();
+          }
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: isPressed ? 0.95 : 1.0,
+          duration: MonoPulseAnimation.durationShort,
+          curve: MonoPulseAnimation.curveCustom,
+          child: Container(
+            // Minimum 48px touch zone (adaptive size)
+            width: widget.buttonSize,
+            height: widget.buttonSize,
+            decoration: BoxDecoration(
+              color: isPressed
+                  ? MonoPulseColors.accentOrange.withValues(alpha: 0.2)
+                  : MonoPulseColors.blackElevated,
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isPressed
+                    ? MonoPulseColors.accentOrange
+                    : (isEnabled
+                          ? MonoPulseColors.borderSubtle
+                          : MonoPulseColors.borderSubtle.withValues(alpha: 0.3)),
+                width: 1.5,
+              ),
+            ),
+            child: Icon(
+              widget.icon,
               color: isPressed
                   ? MonoPulseColors.accentOrange
                   : (isEnabled
-                        ? MonoPulseColors.borderSubtle
-                        : MonoPulseColors.borderSubtle.withValues(alpha: 0.3)),
-              width: 1.5,
+                        ? MonoPulseColors.textSecondary
+                        : MonoPulseColors.textDisabled),
+              size: widget.iconSize,
             ),
-          ),
-          child: Icon(
-            widget.icon,
-            color: isPressed
-                ? MonoPulseColors.accentOrange
-                : (isEnabled
-                      ? MonoPulseColors.textSecondary
-                      : MonoPulseColors.textDisabled),
-            size: widget.iconSize,
           ),
         ),
       ),

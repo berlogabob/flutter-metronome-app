@@ -44,41 +44,45 @@ class CustomAppBar {
       foregroundColor: MonoPulseColors.textPrimary,
       elevation: 0,
       systemOverlayStyle: SystemUiOverlayStyle.light,
-      leading: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          if (onBack != null) {
-            onBack();
-          } else {
-            // For metronome screen, go to home
-            // For normal routes, use pop
-            final currentRoute = GoRouterState.of(context).uri.path;
-            if (currentRoute == '/') {
-              // Already at home, do nothing
-              return;
+      leading: Semantics(
+        label: 'Go back',
+        button: true,
+        child: GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            if (onBack != null) {
+              onBack();
+            } else {
+              // For metronome screen, go to home
+              // For normal routes, use pop
+              final currentRoute = GoRouterState.of(context).uri.path;
+              if (currentRoute == '/') {
+                // Already at home, do nothing
+                return;
+              }
+              context.pop();
             }
-            context.pop();
-          }
-        },
-        // 48px minimum touch zone
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Center(
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: MonoPulseColors.textSecondary,
-                  width: 1.5,
+          },
+          // 48px minimum touch zone
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: MonoPulseColors.textSecondary,
+                    width: 1.5,
+                  ),
                 ),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                color: MonoPulseColors.textSecondary,
-                size: 20,
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: MonoPulseColors.textSecondary,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -98,35 +102,39 @@ class CustomAppBar {
       centerTitle: true,
       actions: menuItems != null
           ? [
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  // Menu will be shown by PopupMenuButton
-                },
-                // 48px minimum touch zone
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Center(
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: MonoPulseColors.borderSubtle,
-                          width: 1,
+              Semantics(
+                label: 'Menu',
+                button: true,
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                    // Menu will be shown by PopupMenuButton
+                  },
+                  // 48px minimum touch zone
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Center(
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: MonoPulseColors.borderSubtle,
+                            width: 1,
+                          ),
                         ),
-                      ),
-                      child: PopupMenuButton<void>(
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.more_horiz,
-                          color: MonoPulseColors.textSecondary,
-                          size: 22,
+                        child: PopupMenuButton<void>(
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(
+                            Icons.more_horiz,
+                            color: MonoPulseColors.textSecondary,
+                            size: 22,
+                          ),
+                          itemBuilder: (context) => menuItems,
+                          onSelected: (value) {},
                         ),
-                        itemBuilder: (context) => menuItems,
-                        onSelected: (value) {},
                       ),
                     ),
                   ),
@@ -151,41 +159,45 @@ class CustomAppBar {
       foregroundColor: MonoPulseColors.textPrimary,
       elevation: 0,
       systemOverlayStyle: SystemUiOverlayStyle.light,
-      leading: GestureDetector(
-        onTap: () {
-          HapticFeedback.lightImpact();
-          if (onBack != null) {
-            onBack();
-          } else {
-            // For metronome screen, go to home
-            // For normal routes, use pop
-            final currentRoute = GoRouterState.of(context).uri.path;
-            if (currentRoute == '/') {
-              // Already at home, do nothing
-              return;
+      leading: Semantics(
+        label: 'Go back',
+        button: true,
+        child: GestureDetector(
+          onTap: () {
+            HapticFeedback.lightImpact();
+            if (onBack != null) {
+              onBack();
+            } else {
+              // For metronome screen, go to home
+              // For normal routes, use pop
+              final currentRoute = GoRouterState.of(context).uri.path;
+              if (currentRoute == '/') {
+                // Already at home, do nothing
+                return;
+              }
+              context.pop();
             }
-            context.pop();
-          }
-        },
-        // 48px minimum touch zone
-        child: SizedBox(
-          width: 48,
-          height: 48,
-          child: Center(
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: MonoPulseColors.textSecondary,
-                  width: 1.5,
+          },
+          // 48px minimum touch zone
+          child: SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: MonoPulseColors.textSecondary,
+                    width: 1.5,
+                  ),
                 ),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                color: MonoPulseColors.textSecondary,
-                size: 20,
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: MonoPulseColors.textSecondary,
+                  size: 20,
+                ),
               ),
             ),
           ),
@@ -227,33 +239,37 @@ class CustomAppBar {
       centerTitle: true,
       actions: menuItems != null
           ? [
-              GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                },
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Center(
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: MonoPulseColors.textSecondary,
-                          width: 1.5,
+              Semantics(
+                label: 'Menu',
+                button: true,
+                child: GestureDetector(
+                  onTap: () {
+                    HapticFeedback.lightImpact();
+                  },
+                  child: SizedBox(
+                    width: 48,
+                    height: 48,
+                    child: Center(
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: MonoPulseColors.textSecondary,
+                            width: 1.5,
+                          ),
                         ),
-                      ),
-                      child: PopupMenuButton<void>(
-                        padding: EdgeInsets.zero,
-                        icon: const Icon(
-                          Icons.more_horiz,
-                          color: MonoPulseColors.textSecondary,
-                          size: 22,
+                        child: PopupMenuButton<void>(
+                          padding: EdgeInsets.zero,
+                          icon: const Icon(
+                            Icons.more_horiz,
+                            color: MonoPulseColors.textSecondary,
+                            size: 22,
+                          ),
+                          itemBuilder: (context) => menuItems,
+                          onSelected: (value) {},
                         ),
-                        itemBuilder: (context) => menuItems,
-                        onSelected: (value) {},
                       ),
                     ),
                   ),

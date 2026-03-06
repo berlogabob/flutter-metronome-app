@@ -126,17 +126,17 @@ void main() {
       });
     });
 
-    group('setBeatsPerMeasure', () {
-      test('updates beats per measure', () {
-        container.read(metronomeProvider.notifier).setBeatsPerMeasure(3);
+    group('setAccentBeats', () {
+      test('updates accent beats', () {
+        container.read(metronomeProvider.notifier).setAccentBeats(3);
         final state = container.read(metronomeProvider);
-        expect(state.beatsPerMeasure, equals(3));
+        expect(state.accentBeats, equals(3));
       });
 
-      test('updates accent pattern when beats per measure changes', () {
-        container.read(metronomeProvider.notifier).setBeatsPerMeasure(3);
+      test('updates accent pattern when accent beats changes', () {
+        container.read(metronomeProvider.notifier).setAccentBeats(3);
         final state = container.read(metronomeProvider);
-        expect(state.accentPattern, equals([true, false, false]));
+        expect(state.accentBeats, equals(3));
       });
     });
 

@@ -3,6 +3,7 @@
 
 import 'dart:math';
 import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import '../../models/metronome_tone_config.dart';
 
 /// Generates and caches audio samples for metronome
@@ -29,14 +30,14 @@ class MetronomeSampleGenerator {
   MetronomeToneConfig get config => _config;
 
   /// Generate all samples based on current configuration
-  /// 
+  ///
   /// Call this when:
   /// - App starts (initial generation)
   /// - User changes tone settings (regeneration)
   /// - User changes wave type (regeneration)
   Future<void> generateAllSamples() async {
     _sampleCache.clear();
-    
+
     // Generate samples for all 6 beat type + accent combinations
     _generateAndCache(BeatType.main, AccentState.regular);
     _generateAndCache(BeatType.main, AccentState.accent);
@@ -44,8 +45,10 @@ class MetronomeSampleGenerator {
     _generateAndCache(BeatType.sub, AccentState.accent);
     _generateAndCache(BeatType.divider, AccentState.regular);
     _generateAndCache(BeatType.divider, AccentState.accent);
-    
-    print('[SampleGenerator] Generated ${_sampleCache.length} samples');
+
+    if (kDebugMode) {
+      print('[SampleGenerator] Generated ${_sampleCache.length} samples');
+    }
   }
 
   /// Update configuration and regenerate all samples
@@ -64,9 +67,11 @@ class MetronomeSampleGenerator {
   Uint8List getSampleOrGenerate(BeatType beatType, AccentState accent) {
     final cached = getSample(beatType, accent);
     if (cached != null) return cached;
-    
+
     // Fallback: generate on-demand (shouldn't happen if initialized)
-    print('[SampleGenerator] Cache miss, generating on-demand: $beatType/$accent');
+    if (kDebugMode) {
+      print('[SampleGenerator] Cache miss, generating on-demand: $beatType/$accent');
+    }
     final frequency = _config.getFrequency(beatType, accent);
     return _generateSample(frequency, _config.waveType, _config.volume);
   }

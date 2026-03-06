@@ -3,22 +3,50 @@ import '../models/time_signature.dart';
 
 part 'metronome_preset.g.dart';
 
-/// Preset for metronome settings
+/// Preset configuration for metronome settings.
+///
+/// Provides quick access to commonly used metronome configurations
+/// including tempo, time signature, and audio settings.
+///
+/// Example usage:
+/// ```dart
+/// // Load a preset
+/// final preset = MetronomePreset.defaults.first;
+/// state = state.copyWith(
+///   bpm: preset.bpm,
+///   timeSignature: preset.timeSignature,
+///   waveType: preset.waveType,
+/// );
+/// ```
 @JsonSerializable()
 class MetronomePreset {
+  /// Unique identifier for this preset.
   @JsonKey(defaultValue: '')
   final String id;
+
+  /// Human-readable name for the preset.
   @JsonKey(defaultValue: '')
   final String name;
+
+  /// Tempo in beats per minute.
   final int bpm;
+
+  /// Time signature for the preset.
   final TimeSignature timeSignature;
+
+  /// Audio wave type: 'sine', 'square', 'triangle', or 'sawtooth'.
   @JsonKey(defaultValue: 'sine')
   final String waveType;
+
+  /// Whether accent beats are enabled.
   @JsonKey(defaultValue: true)
   final bool accentEnabled;
+
+  /// Creation timestamp for the preset.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime createdAt;
 
+  /// Creates a new [MetronomePreset] with the specified values.
   const MetronomePreset({
     required this.id,
     required this.name,
@@ -29,14 +57,20 @@ class MetronomePreset {
     required this.createdAt,
   });
 
-  /// Create preset from JSON
+  /// Creates a [MetronomePreset] from JSON data.
+  ///
+  /// Used for deserializing Firestore documents.
   factory MetronomePreset.fromJson(Map<String, dynamic> json) =>
       _$MetronomePresetFromJson(json);
 
-  /// Convert preset to JSON
+  /// Converts this preset to JSON format.
+  ///
+  /// Used for serializing to Firestore.
   Map<String, dynamic> toJson() => _$MetronomePresetToJson(this);
 
-  /// Create a copy with updated values
+  /// Creates a copy of this preset with the given fields replaced.
+  ///
+  /// All parameters are nullable. Only non-null values will be updated.
   MetronomePreset copyWith({
     String? id,
     String? name,
@@ -57,10 +91,18 @@ class MetronomePreset {
     );
   }
 
-  /// Display name with BPM and time signature
+  /// Display name with BPM and time signature for UI presentation.
+  ///
+  /// Format: "Name (BPM TimeSignature)"
+  /// Example: "Slow Practice (60 BPM 4 / 4)"
   String get displayName => '$name ($bpm BPM ${timeSignature.displayName})';
 
-  /// Common presets
+  /// Common metronome preset configurations.
+  ///
+  /// Includes:
+  /// - Slow Practice: 60 BPM, 4/4 time, sine wave
+  /// - Medium Rock: 120 BPM, 4/4 time, square wave
+  /// - Waltz: 90 BPM, 3/4 time, sine wave
   static final List<MetronomePreset> defaults = [
     MetronomePreset(
       id: 'default_1',

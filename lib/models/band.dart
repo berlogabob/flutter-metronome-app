@@ -12,17 +12,45 @@ class _Sentinel {
   String toString() => '_sentinel';
 }
 
+/// Band member with role and permission information.
+///
+/// Represents a user's membership in a band, including their
+/// permission level and musical roles.
+///
+/// Example usage:
+/// ```dart
+/// final member = BandMember(
+///   uid: 'user123',
+///   role: BandMember.roleEditor,
+///   displayName: 'John Doe',
+///   musicRoles: ['guitarist', 'vocalist'],
+/// );
+/// ```
 @JsonSerializable()
 class BandMember {
+  /// User's unique identifier.
   @JsonKey(defaultValue: '')
   final String uid;
-  @JsonKey(defaultValue: 'viewer')
-  final String role; // Permission role: admin, editor, viewer
-  final String? displayName;
-  final String? email;
-  @JsonKey(defaultValue: [])
-  final List<String> musicRoles; // Music roles: guitarist, vocalist, drummer, etc.
 
+  /// Permission role: 'admin', 'editor', or 'viewer'.
+  ///
+  /// - admin: Full access including member management
+  /// - editor: Can add/edit songs and setlists
+  /// - viewer: Read-only access
+  @JsonKey(defaultValue: 'viewer')
+  final String role;
+
+  /// Display name for the member.
+  final String? displayName;
+
+  /// Email address of the member.
+  final String? email;
+
+  /// Musical roles: guitarist, vocalist, drummer, bassist, etc.
+  @JsonKey(defaultValue: [])
+  final List<String> musicRoles;
+
+  /// Creates a new [BandMember] with the specified values.
   BandMember({
     required this.uid,
     required this.role,
@@ -52,34 +80,81 @@ class BandMember {
     );
   }
 
+  /// Admin role constant - full access to band resources.
   static const String roleAdmin = 'admin';
+
+  /// Editor role constant - can add/edit songs and setlists.
   static const String roleEditor = 'editor';
+
+  /// Viewer role constant - read-only access.
   static const String roleViewer = 'viewer';
 }
 
+/// Band model for collaborative music organization.
+///
+/// Represents a group of musicians sharing songs, setlists,
+/// and rehearsal materials. Supports role-based access control
+/// and invite-based membership.
+///
+/// Example usage:
+/// ```dart
+/// final band = Band(
+///   id: 'band123',
+///   name: 'The Rockers',
+///   description: 'Weekend rock band',
+///   createdBy: 'user456',
+///   members: [adminMember, editorMember],
+///   createdAt: DateTime.now(),
+/// );
+/// ```
 @JsonSerializable()
 class Band {
+  /// Unique identifier for the band.
   @JsonKey(defaultValue: '')
   final String id;
+
+  /// Band name.
   @JsonKey(defaultValue: '')
   final String name;
+
+  /// Optional description of the band.
   final String? description;
+
+  /// User ID who created the band.
   @JsonKey(defaultValue: '')
   final String createdBy;
+
+  /// List of band members with their roles.
   @JsonKey(defaultValue: [], fromJson: _membersFromJson, toJson: _membersToJson)
   final List<BandMember> members;
+
+  /// Derived list of all member UIDs for efficient security rules.
   @JsonKey(defaultValue: [])
-  final List<String> memberUids; // Derived from members for efficient rules checking
+  final List<String> memberUids;
+
+  /// Derived list of admin UIDs for efficient security rules.
   @JsonKey(defaultValue: [])
-  final List<String> adminUids; // Derived from members for efficient rules checking
+  final List<String> adminUids;
+
+  /// Derived list of editor UIDs for efficient security rules.
   @JsonKey(defaultValue: [])
-  final List<String> editorUids; // Derived from members for efficient rules checking
+  final List<String> editorUids;
+
+  /// Tags for organization and filtering.
   @JsonKey(defaultValue: [])
   final List<String> tags;
+
+  /// Unique 6-character invite code for joining the band.
   final String? inviteCode;
+
+  /// Creation timestamp.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime createdAt;
 
+  /// Creates a new [Band] with the specified values.
+  ///
+  /// Automatically derives [memberUids], [adminUids], and [editorUids]
+  /// from the members list if not explicitly provided.
   Band({
     required this.id,
     required this.name,
@@ -157,14 +232,26 @@ class Band {
     );
   }
 
+  /// Converts this band to JSON format.
+  ///
+  /// Used for serializing to Firestore.
   Map<String, dynamic> toJson() => _$BandToJson(this);
 
+  /// Creates a [Band] from JSON data.
+  ///
+  /// Used for deserializing Firestore documents.
   factory Band.fromJson(Map<String, dynamic> json) => _$BandFromJson(json);
 
   /// Generates a unique 6-character invite code using cryptographically secure random.
   ///
   /// The code consists of uppercase letters and digits (36 characters total).
   /// Collision handling should be done at the service layer.
+  ///
+  /// Example:
+  /// ```dart
+  /// final code = Band.generateUniqueInviteCode();
+  /// // Returns something like 'A7X9K2'
+  /// ```
   static String generateUniqueInviteCode() {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     final random = Random.secure();

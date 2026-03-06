@@ -499,7 +499,7 @@ void main() {
           title: 'Tagged Song',
           artist: 'Tagged Artist',
           links: [
-            Link(type: Link.typeYoutubeOriginal, url: 'https://youtube.com'),
+            Link(id: '', type: 'youtube', url: 'https://youtube.com'),
           ],
           tags: ['rock', 'classic'],
           notes: 'Test notes',

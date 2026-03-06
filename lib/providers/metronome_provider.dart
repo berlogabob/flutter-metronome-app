@@ -7,19 +7,53 @@ import '../../models/setlist.dart';
 import '../../models/beat_mode.dart';
 import '../../services/audio/audio_engine_export.dart';
 
-/// MetronomeNotifier - Riverpod 3.x
-/// 
-/// Updated for Riverpod 3.x syntax
+/// Metronome state management notifier using Riverpod 3.x.
+///
+/// Controls all aspects of metronome playback including:
+/// - Start/stop functionality
+/// - BPM adjustment (10-260 range)
+/// - Time signature configuration
+/// - Beat mode customization
+/// - Song and setlist loading
+/// - Audio playback via [AudioEngine]
+///
+/// Example usage:
+/// ```dart
+/// // Access the provider
+/// final notifier = ref.read(metronomeProvider.notifier);
+///
+/// // Start metronome at 120 BPM, 4 beats per measure
+/// notifier.start(120, 4);
+///
+/// // Adjust tempo
+/// notifier.setBpm(140);
+///
+/// // Stop metronome
+/// notifier.stop();
+/// ```
 class MetronomeNotifier extends Notifier<MetronomeState> {
   Timer? _timer;
   final AudioEngine _audioEngine = AudioEngine();
 
+  /// Initializes the metronome state.
+  ///
+  /// Called by Riverpod when the provider is first created.
+  /// Returns the initial stopped state with default settings.
   @override
   MetronomeState build() {
     return MetronomeState.initial();
   }
 
-  /// Start the metronome
+  /// Starts the metronome playback.
+  ///
+  /// Initializes audio engine on first call and begins the timer
+  /// for beat playback. Auto-generates accent pattern based on
+  /// the time signature.
+  ///
+  /// [bpm] - Tempo in beats per minute (clamped to 10-260)
+  /// [beatsPerMeasure] - Number of beats per measure (numerator)
+  ///
+  /// Does nothing if already playing.
   void start(int bpm, int beatsPerMeasure) {
     if (state.isPlaying) return;
 
@@ -55,7 +89,10 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     _startTimer();
   }
 
-  /// Stop the metronome
+  /// Stops the metronome playback.
+  ///
+  /// Cancels the timer and resets the current beat to 0.
+  /// Does nothing if not currently playing.
   void stop() {
     if (!state.isPlaying) return;
 
@@ -65,7 +102,11 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     state = state.copyWith(isPlaying: false, currentBeat: 0);
   }
 
-  /// Update BPM while playing
+  /// Updates the tempo (BPM) while playing.
+  ///
+  /// [bpm] - New tempo in beats per minute (clamped to 10-260)
+  ///
+  /// Restarts the timer if currently playing to apply the new tempo.
   void setBpm(int bpm) {
     // Restricted BPM range: 10-260
     final clampedBpm = bpm.clamp(10, 260);
@@ -77,19 +118,29 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Set number of BEATS (top row, first number of time signature)
+  /// Sets the number of beats per measure (top number of time signature).
+  ///
+  /// [count] - Number of beats (clamped to 1-12)
   void setAccentBeats(int count) {
     final clampedCount = count.clamp(1, 12);
     state = state.copyWith(accentBeats: clampedCount);
   }
 
-  /// Set number of SUBDIVISIONS per beat (bottom row)
+  /// Sets the number of subdivisions per beat (bottom number of time signature).
+  ///
+  /// [count] - Number of subdivisions (clamped to 1-12)
   void setRegularBeats(int count) {
     final clampedCount = count.clamp(1, 12);
     state = state.copyWith(regularBeats: clampedCount);
   }
 
-  /// Set beat mode for individual beat
+  /// Sets the beat mode for an individual beat and subdivision.
+  ///
+  /// [beatIndex] - Index of the beat (0-based)
+  /// [subdivisionIndex] - Index of the subdivision within the beat (0-based)
+  /// [mode] - The beat mode (normal, accent, or silent)
+  ///
+  /// Expands the beatModes grid if necessary to accommodate the indices.
   void setBeatMode(int beatIndex, int subdivisionIndex, BeatMode mode) {
     final newBeatModes = List<List<BeatMode>>.from(
       state.beatModes.map((beat) => List<BeatMode>.from(beat)),
@@ -108,7 +159,12 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     state = state.copyWith(beatModes: List.unmodifiable(newBeatModes));
   }
 
-  /// Rotate tempo using rotary dial gesture
+  /// Rotates the tempo using rotary dial gesture input.
+  ///
+  /// [degrees] - Rotation angle in degrees
+  ///
+  /// Converts degrees to BPM change (288 degrees = 1 BPM).
+  /// Stops at the BPM limits (10 and 260).
   void rotateTempo(double degrees) {
     final bpmChange = (degrees / 288).round();
     // Restricted BPM range: 10-260
@@ -127,7 +183,11 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Fine adjustment for tempo (+1, +5, +10 buttons)
+  /// Fine adjustment for tempo using +1, +5, +10 buttons.
+  ///
+  /// [delta] - Amount to change BPM by (positive or negative)
+  ///
+  /// Clamps the result to the valid BPM range (10-260).
   void adjustTempoFine(int delta) {
     // Restricted BPM range: 10-260
     final newBpm = (state.bpm + delta).clamp(10, 260);
@@ -139,7 +199,11 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Load tempo and metronome settings from a song
+  /// Loads tempo and metronome settings from a song.
+  ///
+  /// [song] - The song to load settings from
+  ///
+  /// Updates BPM, accent beats, regular beats, and beat modes from the song.
   void loadSongTempo(Song song) {
     state = state.copyWith(loadedSong: song);
 
@@ -168,7 +232,10 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Save current metronome settings to the loaded song
+  /// Saves current metronome settings to the loaded song.
+  ///
+  /// Returns the updated song with current accent beats, regular beats,
+  /// beat modes, and BPM. Returns null if no song is loaded.
   Song? saveMetronomeToSong() {
     final song = state.loadedSong;
     if (song == null) return null;
@@ -186,12 +253,18 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     return updatedSong;
   }
 
-  /// Load tempo from a setlist
+  /// Loads a setlist into the metronome queue.
+  ///
+  /// [setlist] - The setlist to load
+  ///
+  /// Resets the current song index to 0.
   void loadSetlistQueue(Setlist setlist) {
     state = state.copyWith(loadedSetlist: setlist, currentSetlistIndex: 0);
   }
 
-  /// Move to next song in setlist
+  /// Moves to the next song in the setlist queue.
+  ///
+  /// Does nothing if no setlist is loaded or already at the last song.
   void nextSetlistSong() {
     if (state.loadedSetlist == null) return;
 
@@ -201,7 +274,9 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Move to previous song in setlist
+  /// Moves to the previous song in the setlist queue.
+  ///
+  /// Does nothing if no setlist is loaded or already at the first song.
   void previousSetlistSong() {
     if (state.loadedSetlist == null) return;
 
@@ -212,7 +287,9 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Clear loaded song/setlist
+  /// Clears the loaded song and setlist from state.
+  ///
+  /// Resets currentSetlistIndex to 0.
   void clearLoadedContent() {
     state = state.copyWith(
       loadedSong: null,
@@ -221,7 +298,11 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     );
   }
 
-  /// Set tempo directly
+  /// Sets the tempo directly to a specific BPM value.
+  ///
+  /// [bpm] - New tempo in beats per minute (clamped to 10-260)
+  ///
+  /// Restarts the timer if currently playing.
   void setTempoDirectly(int bpm) {
     // Restricted BPM range: 10-260
     final clampedBpm = bpm.clamp(10, 260);
@@ -233,7 +314,12 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Set time signature
+  /// Sets the time signature for the metronome.
+  ///
+  /// [ts] - The new time signature
+  ///
+  /// Auto-generates accent pattern based on the time signature.
+  /// Special handling for 6/8 time (2 main beats).
   void setTimeSignature(TimeSignature ts) {
     int beatCount;
     List<bool> accentPattern;
@@ -258,43 +344,58 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Set wave type
+  /// Sets the audio wave type.
+  ///
+  /// [type] - Wave type: 'sine', 'square', 'triangle', or 'sawtooth'
   void setWaveType(String type) {
     state = state.copyWith(waveType: type);
   }
 
-  /// Set volume
+  /// Sets the audio volume.
+  ///
+  /// [volume] - Volume level from 0.0 to 1.0 (clamped)
   void setVolume(double volume) {
     final clampedVolume = volume.clamp(0.0, 1.0);
     state = state.copyWith(volume: clampedVolume);
   }
 
-  /// Toggle accent enabled
+  /// Toggles whether accent beats are enabled.
   void toggleAccent() {
     state = state.copyWith(accentEnabled: !state.accentEnabled);
   }
 
-  /// Set accent enabled state
+  /// Sets whether accent beats are enabled.
+  ///
+  /// [enabled] - True to enable accents, false to disable
   void setAccentEnabled(bool enabled) {
     state = state.copyWith(accentEnabled: enabled);
   }
 
-  /// Set accent frequency
+  /// Sets the frequency for accented beats.
+  ///
+  /// [frequency] - Frequency in Hz
   void setAccentFrequency(double frequency) {
     state = state.copyWith(accentFrequency: frequency);
   }
 
-  /// Set beat frequency
+  /// Sets the frequency for regular beats.
+  ///
+  /// [frequency] - Frequency in Hz
   void setBeatFrequency(double frequency) {
     state = state.copyWith(beatFrequency: frequency);
   }
 
-  /// Set accent pattern
+  /// Sets the accent pattern for the metronome.
+  ///
+  /// [pattern] - List of booleans indicating which beats are accented
   void setAccentPattern(List<bool> pattern) {
     state = state.copyWith(accentPattern: List.unmodifiable(pattern));
   }
 
-  /// Update accent pattern from time signature
+  /// Updates the accent pattern based on the current time signature.
+  ///
+  /// Generates a pattern where the first beat is accented.
+  /// Special handling for 6/8 time (2 main beats).
   void updateAccentPatternFromTimeSignature() {
     final ts = state.timeSignature;
     List<bool> accentPattern;
@@ -308,12 +409,16 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     state = state.copyWith(accentPattern: accentPattern);
   }
 
-  /// Play test sound
+  /// Plays a test sound to verify audio settings.
+  ///
+  /// Useful for checking volume and wave type before starting playback.
   Future<void> playTest() async {
     await _audioEngine.playTest();
   }
 
-  /// Toggle play/stop
+  /// Toggles between play and stop states.
+  ///
+  /// Convenience method that calls [start] or [stop] based on current state.
   void toggle() {
     if (state.isPlaying) {
       stop();
@@ -322,7 +427,10 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
   }
 
-  /// Start timer based on current BPM
+  /// Starts the internal timer based on current BPM.
+  ///
+  /// Calculates interval from BPM and creates a periodic timer.
+  /// Interval is clamped between 1ms and 1500ms.
   void _startTimer() {
     final interval = Duration(
       milliseconds: (60000 ~/ state.bpm).clamp(1, 1500),
@@ -330,7 +438,11 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     _timer = Timer.periodic(interval, _onTick);
   }
 
-  /// Handle timer tick
+  /// Handles timer tick for beat playback.
+  ///
+  /// Calculates current beat and subdivision indices,
+  /// determines beat mode and frequency, and triggers audio playback.
+  /// Updates state with new beat index.
   void _onTick(Timer timer) {
     if (!state.isPlaying) return;
 
@@ -372,17 +484,29 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     state = state.copyWith(currentBeat: nextTick);
   }
 
-  /// Dispose resources when the provider is destroyed
+  /// Disposes resources when the provider is destroyed.
+  ///
+  /// Cancels the timer and disposes the audio engine.
   @override
   void dispose() {
     _timer?.cancel();
     _audioEngine.dispose();
-    // Note: Not calling super.dispose() in Riverpod 3.x Notifier
   }
 }
 
-/// NotifierProvider for metronome state management
-/// Riverpod 3.x syntax
+/// NotifierProvider for metronome state management.
+///
+/// Provides access to [MetronomeNotifier] and [MetronomeState].
+/// Use this provider to read state or call notifier methods.
+///
+/// Example usage:
+/// ```dart
+/// // Read state
+/// final state = ref.watch(metronomeProvider);
+///
+/// // Call notifier method
+/// ref.read(metronomeProvider.notifier).start(120, 4);
+/// ```
 final metronomeProvider = NotifierProvider<MetronomeNotifier, MetronomeState>(
   MetronomeNotifier.new,
 );

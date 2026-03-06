@@ -106,66 +106,78 @@ class _CentralTempoCircleState extends ConsumerState<CentralTempoCircle>
         final paddingAroundCircle = isSmallScreen ? 24.0 : 40.0;
         final touchZoneSize = clampedSize + (paddingAroundCircle * 2);
 
-        return GestureDetector(
-          onPanStart: _onPanStart,
-          onPanUpdate: _onPanUpdate,
-          onPanEnd: _onPanEnd,
-          // Disable horizontal drag to prevent interference with scroll
-          behavior: HitTestBehavior.opaque,
-          child: Center(
-            child: SizedBox(
-              width: touchZoneSize,
-              height: touchZoneSize,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Outer tick marks and labels (larger area for visual scale)
-                  _TickMarks(size: clampedSize, isSmallScreen: isSmallScreen),
+        return Semantics(
+          label: 'Tempo control. Current tempo: $bpm beats per minute. Drag up or down to adjust tempo.',
+          button: true,
+          child: GestureDetector(
+            onPanStart: _onPanStart,
+            onPanUpdate: _onPanUpdate,
+            onPanEnd: _onPanEnd,
+            // Disable horizontal drag to prevent interference with scroll
+            behavior: HitTestBehavior.opaque,
+            child: Center(
+              child: SizedBox(
+                width: touchZoneSize,
+                height: touchZoneSize,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Outer tick marks and labels (larger area for visual scale)
+                    ExcludeSemantics(
+                      child: _TickMarks(size: clampedSize, isSmallScreen: isSmallScreen),
+                    ),
 
-                  // Main rotary dial with increased touch zone
-                  GestureDetector(
-                    onPanStart: _onPanStart,
-                    onPanUpdate: _onPanUpdate,
-                    onPanEnd: _onPanEnd,
-                    behavior: HitTestBehavior.opaque,
-                    child: SizedBox(
-                      width: touchZoneSize,
-                      height: touchZoneSize,
-                      child: Center(
-                        child: AnimatedRotation(
-                          turns: _isDragging
-                              ? _currentRotation / 360
-                              : _cumulativeRotation / 360,
-                          duration: _isDragging
-                              ? Duration.zero
-                              : MonoPulseAnimation.durationMedium,
-                          curve: MonoPulseAnimation.curveCustom,
-                          child: _RotaryDial(
-                            size: clampedSize * 0.85,
-                            bpm: bpm,
-                            onTap: () => _showTempoDialog(context, metronome),
+                    // Main rotary dial with increased touch zone
+                    Semantics(
+                      label: 'Rotary tempo dial. Tap to enter tempo manually.',
+                      button: true,
+                      child: GestureDetector(
+                        onPanStart: _onPanStart,
+                        onPanUpdate: _onPanUpdate,
+                        onPanEnd: _onPanEnd,
+                        behavior: HitTestBehavior.opaque,
+                        child: SizedBox(
+                          width: touchZoneSize,
+                          height: touchZoneSize,
+                          child: Center(
+                            child: AnimatedRotation(
+                              turns: _isDragging
+                                  ? _currentRotation / 360
+                                  : _cumulativeRotation / 360,
+                              duration: _isDragging
+                                  ? Duration.zero
+                                  : MonoPulseAnimation.durationMedium,
+                              curve: MonoPulseAnimation.curveCustom,
+                              child: _RotaryDial(
+                                size: clampedSize * 0.85,
+                                bpm: bpm,
+                                onTap: () => _showTempoDialog(context, metronome),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // Center BPM display with pulse animation (not rotating)
-                  IgnorePointer(
-                    child: AnimatedScale(
-                      scale: _pulseController.isAnimating
-                          ? _pulseAnimation.value
-                          : 1.0,
-                      duration: MonoPulseAnimation.durationShort,
-                      curve: MonoPulseAnimation.curveCustom,
-                      child: _BpmDisplay(
-                        bpm: bpm,
-                        size: clampedSize,
-                        isSmallScreen: isSmallScreen,
+                    // Center BPM display with pulse animation (not rotating)
+                    ExcludeSemantics(
+                      child: IgnorePointer(
+                        child: AnimatedScale(
+                          scale: _pulseController.isAnimating
+                              ? _pulseAnimation.value
+                              : 1.0,
+                          duration: MonoPulseAnimation.durationShort,
+                          curve: MonoPulseAnimation.curveCustom,
+                          child: _BpmDisplay(
+                            bpm: bpm,
+                            size: clampedSize,
+                            isSmallScreen: isSmallScreen,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -249,25 +261,33 @@ class _RotaryDial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: MonoPulseColors.surface,
-          border: Border.all(color: MonoPulseColors.borderSubtle, width: 1),
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            // Progress ring (visual indicator of BPM position)
-            _ProgressRing(size: size, bpm: bpm),
+    return Semantics(
+      label: 'Tap to enter tempo value',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: MonoPulseColors.surface,
+            border: Border.all(color: MonoPulseColors.borderSubtle, width: 1),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // Progress ring (visual indicator of BPM position)
+              ExcludeSemantics(
+                child: _ProgressRing(size: size, bpm: bpm),
+              ),
 
-            // Handle/dot on the edge - always matches current BPM
-            _RotateHandle(size: size, bpm: bpm),
-          ],
+              // Handle/dot on the edge - always matches current BPM
+              ExcludeSemantics(
+                child: _RotateHandle(size: size, bpm: bpm),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -385,35 +405,40 @@ class _BpmDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scale font sizes based on circle size
+    // Scale font sizes based on circle size and user's text scale preference
+    final textScaler = MediaQuery.textScalerOf(context);
     // BPM text: 60px on small screens, 72px on large
     final bpmFontSize = size * (isSmallScreen ? 0.28 : 0.32);
     // "bpm" label: 14px instead of 18px on small screens
     final labelFontSize = size * (isSmallScreen ? 0.045 : 0.055);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          '$bpm',
-          style: TextStyle(
-            fontSize: bpmFontSize,
-            fontWeight: MonoPulseTypography.bold,
-            color: MonoPulseColors.textHighEmphasis,
-            letterSpacing: -2,
-            height: 1.0,
+    return Semantics(
+      label: '$bpm beats per minute',
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$bpm',
+            style: TextStyle(
+              fontSize: bpmFontSize,
+              fontWeight: MonoPulseTypography.bold,
+              color: MonoPulseColors.textHighEmphasis,
+              letterSpacing: -2,
+              height: 1.0,
+            ).apply(fontSizeFactor: textScaler.scale(1.0)),
           ),
-        ),
-        SizedBox(height: size * 0.02),
-        Text(
-          'bpm',
-          style: MonoPulseTypography.bodyLarge.copyWith(
-            color: MonoPulseColors.textTertiary,
-            fontWeight: MonoPulseTypography.medium,
-            fontSize: labelFontSize,
+          SizedBox(height: size * 0.02),
+          Text(
+            'bpm',
+            style: MonoPulseTypography.bodyLarge.copyWith(
+              color: MonoPulseColors.textTertiary,
+              fontWeight: MonoPulseTypography.medium,
+              fontSize: labelFontSize,
+            ).apply(fontSizeFactor: textScaler.scale(1.0)),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

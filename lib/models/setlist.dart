@@ -14,32 +14,73 @@ class _Sentinel {
   String toString() => '_sentinel';
 }
 
+/// Setlist model for organizing songs for events and performances.
+///
+/// Represents a collection of songs arranged for a specific event,
+/// with optional date, location, and member assignments.
+///
+/// Example usage:
+/// ```dart
+/// final setlist = Setlist(
+///   id: 'setlist123',
+///   bandId: 'band456',
+///   name: 'Summer Gig 2026',
+///   eventDateTime: DateTime(2026, 7, 15, 20, 0),
+///   eventLocation: 'The Music Hall',
+///   songIds: ['song1', 'song2', 'song3'],
+///   createdAt: DateTime.now(),
+///   updatedAt: DateTime.now(),
+/// );
+/// ```
 @JsonSerializable()
 class Setlist {
+  /// Unique identifier for the setlist.
   @JsonKey(defaultValue: '')
   final String id;
+
+  /// ID of the band this setlist belongs to.
   @JsonKey(defaultValue: '')
   final String bandId;
+
+  /// Human-readable name for the setlist.
   @JsonKey(defaultValue: '')
   final String name;
+
+  /// Optional description or notes about the event.
   final String? description;
+
+  /// Date and time of the event.
   @JsonKey(fromJson: _parseTimestamp, toJson: _dateTimeToJson)
   final DateTime? eventDateTime;
+
+  /// Location/venue of the event.
   final String? eventLocation;
+
+  /// Ordered list of song IDs in the setlist.
   @JsonKey(defaultValue: [])
   final List<String> songIds;
+
+  /// Total duration of all songs in milliseconds.
   final int? totalDuration;
+
+  /// Member assignments with role overrides and notes.
+  /// Key is member UID, value is assignment details.
   @JsonKey(
     defaultValue: {},
     fromJson: _assignmentsFromJson,
     toJson: _assignmentsToJson,
   )
   final Map<String, SetlistAssignment> assignments;
+
+  /// Creation timestamp.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime createdAt;
+
+  /// Last update timestamp.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime updatedAt;
 
+  /// Creates a new [Setlist] with the specified values.
   Setlist({
     required this.id,
     required this.bandId,
@@ -90,19 +131,31 @@ class Setlist {
     );
   }
 
+  /// Converts this setlist to JSON format.
+  ///
+  /// Used for serializing to Firestore.
   Map<String, dynamic> toJson() => _$SetlistToJson(this);
 
+  /// Creates a [Setlist] from JSON data.
+  ///
+  /// Used for deserializing Firestore documents.
   factory Setlist.fromJson(Map<String, dynamic> json) =>
       _$SetlistFromJson(json);
 
+  /// Formatted event date string for UI display.
+  ///
+  /// Returns date in DD.MM.YYYY format, or empty string if no date set.
   String get formattedEventDate {
     if (eventDateTime == null) return '';
     return '${eventDateTime!.day.toString().padLeft(2, '0')}.${eventDateTime!.month.toString().padLeft(2, '0')}.${eventDateTime!.year}';
   }
 
-  /// Get list of participants for this setlist based on band members and assignments.
+  /// Gets list of participants for this setlist based on band members and assignments.
   ///
-  /// Returns a list of participant info including their role for this setlist.
+  /// Returns a list of participant info maps containing:
+  /// - 'uid': Member's user ID
+  /// - 'name': Display name or email
+  /// - 'role': Member's role in the band
   List<Map<String, String>> getParticipants(List<BandMember> bandMembers) {
     final participants = <Map<String, String>>[];
 

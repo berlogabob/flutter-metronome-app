@@ -7,20 +7,48 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/metronome_tone_config.dart';
 
-/// Provider for global tone configuration
-/// Riverpod 3.x - Async provider with SharedPreferences
+/// Provider for global metronome tone configuration.
+///
+/// Manages user preferences for metronome sounds including:
+/// - Frequencies for different beat types and accent states
+/// - Wave type selection
+/// - Volume level
+///
+/// Configuration is persisted to SharedPreferences and loaded
+/// asynchronously on app startup.
+///
+/// Example usage:
+/// ```dart
+/// // Watch configuration (AsyncValue)
+/// final configAsync = ref.watch(globalToneConfigProvider);
+///
+/// // Update frequency
+/// await ref.read(globalToneConfigProvider.notifier).updateFrequency(
+///   BeatType.main,
+///   AccentState.accent,
+///   2000.0,
+/// );
+///
+/// // Load preset
+/// await ref.read(globalToneConfigProvider.notifier).loadPreset(
+///   MetronomeToneConfig.classic,
+/// );
+/// ```
 final globalToneConfigProvider = AsyncNotifierProvider<GlobalToneConfigNotifier, MetronomeToneConfig>(
   GlobalToneConfigNotifier.new,
 );
 
-/// Notifier for global tone configuration
+/// Notifier for global tone configuration.
+///
+/// Handles loading, saving, and updating tone preferences.
+/// Uses SharedPreferences for persistence.
 class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
   @override
   Future<MetronomeToneConfig> build() async {
     return _loadFromPrefs();
   }
 
-  /// Storage keys
+  /// SharedPreferences storage keys for tone configuration.
   static const String _keyMainRegular = 'tone_main_regular';
   static const String _keyMainAccent = 'tone_main_accent';
   static const String _keySubRegular = 'tone_sub_regular';
@@ -30,7 +58,10 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
   static const String _keyWaveType = 'tone_wave_type';
   static const String _keyVolume = 'tone_volume';
 
-  /// Load configuration from SharedPreferences
+  /// Loads tone configuration from SharedPreferences.
+  ///
+  /// Returns default configuration if no saved preferences exist
+  /// or if loading fails.
   Future<MetronomeToneConfig> _loadFromPrefs() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -51,7 +82,11 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
     }
   }
 
-  /// Save configuration to SharedPreferences
+  /// Saves tone configuration to SharedPreferences.
+  ///
+  /// [config] - The configuration to save
+  ///
+  /// Logs errors but doesn't throw exceptions to avoid disrupting UI.
   Future<void> _saveToPrefs(MetronomeToneConfig config) async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -71,7 +106,13 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
     }
   }
 
-  /// Update frequency for specific beat type and accent
+  /// Updates frequency for a specific beat type and accent state.
+  ///
+  /// [beatType] - The type of beat (main, sub, divider)
+  /// [accent] - Whether this is an accented or regular beat
+  /// [frequency] - New frequency in Hz
+  ///
+  /// Saves the updated configuration to SharedPreferences.
   Future<void> updateFrequency(BeatType beatType, AccentState accent, double frequency) async {
     final current = await future;
     final updated = switch (beatType) {
@@ -96,7 +137,11 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
     });
   }
 
-  /// Update wave type
+  /// Updates the wave type for metronome sounds.
+  ///
+  /// [waveType] - New wave type: 'sine', 'square', 'triangle', or 'sawtooth'
+  ///
+  /// Saves the updated configuration to SharedPreferences.
   Future<void> setWaveType(String waveType) async {
     final current = await future;
     state = const AsyncValue.loading();
@@ -107,7 +152,11 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
     });
   }
 
-  /// Update volume
+  /// Updates the volume level.
+  ///
+  /// [volume] - New volume from 0.0 to 1.0
+  ///
+  /// Saves the updated configuration to SharedPreferences.
   Future<void> setVolume(double volume) async {
     final current = await future;
     state = const AsyncValue.loading();
@@ -118,7 +167,11 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
     });
   }
 
-  /// Load preset
+  /// Loads a tone configuration preset.
+  ///
+  /// [preset] - The preset configuration to load
+  ///
+  /// Saves the preset to SharedPreferences and updates state.
   Future<void> loadPreset(MetronomeToneConfig preset) async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {
@@ -127,7 +180,9 @@ class GlobalToneConfigNotifier extends AsyncNotifier<MetronomeToneConfig> {
     });
   }
 
-  /// Reset to classic default
+  /// Resets tone configuration to the classic default preset.
+  ///
+  /// Loads [MetronomeToneConfig.classic] and saves to SharedPreferences.
   Future<void> resetToClassic() async {
     state = const AsyncValue.loading();
     state = await AsyncValue.guard(() async {

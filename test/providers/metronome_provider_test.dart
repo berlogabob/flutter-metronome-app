@@ -1120,15 +1120,15 @@ void main() {
         expect(state.accentPattern[0], isTrue);
       });
 
-      test('setBeatsPerMeasure updates time signature', () {
+      test('setAccentBeats updates accent beats', () {
         final container = ProviderContainer();
         addTearDown(container.dispose);
 
         final metronome = container.read(metronomeProvider.notifier);
-        metronome.setBeatsPerMeasure(3);
+        metronome.setAccentBeats(3);
 
         final state = container.read(metronomeProvider);
-        expect(state.timeSignature.numerator, 3);
+        expect(state.accentBeats, 3);
       });
     });
 

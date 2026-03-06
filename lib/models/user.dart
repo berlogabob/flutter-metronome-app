@@ -11,20 +11,50 @@ class _Sentinel {
   String toString() => '_sentinel';
 }
 
+/// Application user model.
+///
+/// Represents a registered user with their profile information
+/// and band associations.
+///
+/// Example usage:
+/// ```dart
+/// final user = AppUser(
+///   uid: 'user123',
+///   displayName: 'John Doe',
+///   email: 'john@example.com',
+///   bandIds: ['band1', 'band2'],
+///   baseTags: ['guitarist', 'vocalist'],
+///   createdAt: DateTime.now(),
+/// );
+/// ```
 @JsonSerializable()
 class AppUser {
+  /// User's unique identifier from Firebase Auth.
   @JsonKey(defaultValue: '')
   final String uid;
+
+  /// Display name for the user.
   final String? displayName;
+
+  /// Email address.
   final String? email;
+
+  /// Profile photo URL.
   final String? photoURL;
+
+  /// List of band IDs the user belongs to.
   @JsonKey(defaultValue: [])
   final List<String> bandIds;
+
+  /// Musical role tags: guitarist, vocalist, drummer, bassist, etc.
   @JsonKey(defaultValue: [])
-  final List<String> baseTags; // Role tags: guitarist, vocalist, drummer, etc.
+  final List<String> baseTags;
+
+  /// Account creation timestamp.
   @JsonKey(fromJson: _parseDateTime, toJson: _dateTimeToJson)
   final DateTime createdAt;
 
+  /// Creates a new [AppUser] with the specified values.
   AppUser({
     required this.uid,
     this.displayName,
@@ -57,8 +87,14 @@ class AppUser {
     );
   }
 
+  /// Converts this user to JSON format.
+  ///
+  /// Used for serializing to Firestore.
   Map<String, dynamic> toJson() => _$AppUserToJson(this);
 
+  /// Creates an [AppUser] from JSON data.
+  ///
+  /// Used for deserializing Firestore documents.
   factory AppUser.fromJson(Map<String, dynamic> json) =>
       _$AppUserFromJson(json);
 }

@@ -12,7 +12,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:mockito/mockito.dart';
 import 'package:uuid/uuid.dart';
 
 import 'package:metronome_app/models/metronome_state.dart';
@@ -22,20 +21,8 @@ import 'package:metronome_app/models/song.dart';
 import 'package:metronome_app/models/beat_mode.dart';
 import 'package:metronome_app/providers/metronome_provider.dart';
 
-import '../helpers/mocks.mocks.dart';
-
 void main() {
   group('Metronome Flow Integration Tests - INT-METRONOME-01', () {
-    late MockAudioPlayer mockAudioPlayer;
-
-    setUp(() {
-      mockAudioPlayer = MockAudioPlayer();
-      when(mockAudioPlayer.volume).thenReturn(0.5);
-      when(mockAudioPlayer.setVolume(any)).thenAnswer((_) async => {});
-      when(mockAudioPlayer.play(any)).thenAnswer((_) async => {});
-      when(mockAudioPlayer.stop()).thenAnswer((_) async => {});
-      when(mockAudioPlayer.dispose()).thenAnswer((_) async => {});
-    });
 
     // =========================================================================
     // MANUAL BPM INPUT TESTS
