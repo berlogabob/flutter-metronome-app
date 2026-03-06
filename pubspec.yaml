@@ -29,7 +29,6 @@ dependencies:
   # Persistence & Utils
   shared_preferences: ^2.5.4
   json_annotation: ^4.9.0
-  flutter_dotenv: ^5.2.1
   web: ^1.1.0
 
 dev_dependencies:
