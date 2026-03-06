@@ -3,6 +3,13 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'dart:io' show Platform;
 
+/// Firebase options for RepSync Metronome
+/// 
+/// Note: All configuration values are hardcoded for development.
+/// For production, use proper Firebase configuration:
+/// - Android: google-services.json
+/// - iOS: GoogleService-Info.plist
+/// - Web: Firebase config in web/index.html
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -17,43 +24,37 @@ class DefaultFirebaseOptions {
     );
   }
 
-  static String _getApiKey() {
-    // Fallback API key for development
-    // In production, use secure environment variable configuration
-    return 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o';
-  }
-
   static FirebaseOptions get web {
-    return FirebaseOptions(
-      apiKey: _getApiKey(),
-      appId: dotenv.env['FIREBASE_APP_ID_WEB'] ?? '1:703941154390:web:43dfeaf2f6a0495e004df7',
-      messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '703941154390',
-      projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? 'repsync-app-8685c',
-      authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? 'repsync-app-8685c.firebaseapp.com',
-      storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? 'repsync-app-8685c.firebasestorage.app',
+    return const FirebaseOptions(
+      apiKey: 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o',
+      appId: '1:703941154390:web:43dfeaf2f6a0495e004df7',
+      messagingSenderId: '703941154390',
+      projectId: 'repsync-app-8685c',
+      authDomain: 'repsync-app-8685c.firebaseapp.com',
+      storageBucket: 'repsync-app-8685c.firebasestorage.app',
     );
   }
 
   static FirebaseOptions get android {
-    return FirebaseOptions(
-      apiKey: _getApiKey(),
-      appId: dotenv.env['FIREBASE_APP_ID_ANDROID'] ?? '1:703941154390:android:43dfeaf2f6a0495e004df7',
-      messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '703941154390',
-      projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? 'repsync-app-8685c',
-      authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? 'repsync-app-8685c.firebaseapp.com',
-      storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? 'repsync-app-8685c.firebasestorage.app',
+    return const FirebaseOptions(
+      apiKey: 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o',
+      appId: '1:703941154390:android:43dfeaf2f6a0495e004df7',
+      messagingSenderId: '703941154390',
+      projectId: 'repsync-app-8685c',
+      authDomain: 'repsync-app-8685c.firebaseapp.com',
+      storageBucket: 'repsync-app-8685c.firebasestorage.app',
     );
   }
 
   static FirebaseOptions get ios {
-    return FirebaseOptions(
-      apiKey: _getApiKey(),
-      appId: dotenv.env['FIREBASE_APP_ID_IOS'] ?? '1:703941154390:ios:43dfeaf2f6a0495e004df7',
-      messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '703941154390',
-      projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? 'repsync-app-8685c',
-      authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? 'repsync-app-8685c.firebaseapp.com',
-      storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? 'repsync-app-8685c.firebasestorage.app',
-      iosBundleId: dotenv.env['FIREBASE_IOS_BUNDLE_ID'] ?? 'com.example.flutterRepsyncApp',
+    return const FirebaseOptions(
+      apiKey: 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o',
+      appId: '1:703941154390:ios:43dfeaf2f6a0495e004df7',
+      messagingSenderId: '703941154390',
+      projectId: 'repsync-app-8685c',
+      authDomain: 'repsync-app-8685c.firebaseapp.com',
+      storageBucket: 'repsync-app-8685c.firebasestorage.app',
+      iosBundleId: 'com.example.flutterRepsyncApp',
     );
   }
 }
