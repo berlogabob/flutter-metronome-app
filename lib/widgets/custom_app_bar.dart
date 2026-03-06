@@ -53,11 +53,11 @@ class CustomAppBar {
             // For metronome screen, go to home
             // For normal routes, use pop
             final currentRoute = GoRouterState.of(context).uri.path;
-            if (currentRoute.startsWith('/metronome')) {
-              context.go('/');
-            } else {
-              context.pop();
+            if (currentRoute == '/') {
+              // Already at home, do nothing
+              return;
             }
+            context.pop();
           }
         },
         // 48px minimum touch zone
@@ -160,11 +160,11 @@ class CustomAppBar {
             // For metronome screen, go to home
             // For normal routes, use pop
             final currentRoute = GoRouterState.of(context).uri.path;
-            if (currentRoute.startsWith('/metronome')) {
-              context.go('/');
-            } else {
-              context.pop();
+            if (currentRoute == '/') {
+              // Already at home, do nothing
+              return;
             }
+            context.pop();
           }
         },
         // 48px minimum touch zone
