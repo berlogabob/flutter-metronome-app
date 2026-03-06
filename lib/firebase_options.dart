@@ -26,7 +26,7 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions get web {
     return const FirebaseOptions(
-      apiKey: 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o',
+      apiKey: String.fromEnvironment('FIREBASE_API_KEY', defaultValue: 'YOUR_API_KEY_HERE'),
       appId: '1:703941154390:web:43dfeaf2f6a0495e004df7',
       messagingSenderId: '703941154390',
       projectId: 'repsync-app-8685c',
@@ -37,7 +37,7 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions get android {
     return const FirebaseOptions(
-      apiKey: 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o',
+      apiKey: String.fromEnvironment('FIREBASE_API_KEY', defaultValue: 'YOUR_API_KEY_HERE'),
       appId: '1:703941154390:android:43dfeaf2f6a0495e004df7',
       messagingSenderId: '703941154390',
       projectId: 'repsync-app-8685c',
@@ -48,7 +48,7 @@ class DefaultFirebaseOptions {
 
   static FirebaseOptions get ios {
     return const FirebaseOptions(
-      apiKey: 'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o',
+      apiKey: String.fromEnvironment('FIREBASE_API_KEY', defaultValue: 'YOUR_API_KEY_HERE'),
       appId: '1:703941154390:ios:43dfeaf2f6a0495e004df7',
       messagingSenderId: '703941154390',
       projectId: 'repsync-app-8685c',
