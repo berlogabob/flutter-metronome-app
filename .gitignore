@@ -46,6 +46,11 @@ linked_*.ds
 unlinked.ds
 unlinked_spec.ds
 
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+
 # Android related
 **/android/**/gradle-wrapper.jar
 .gradle/
