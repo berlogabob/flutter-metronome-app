@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_repsync_app/widgets/metronome/song_library_block.dart';
-import 'package:flutter_repsync_app/providers/metronome_provider.dart';
-import 'package:flutter_repsync_app/providers/data/data_providers.dart';
-import 'package:flutter_repsync_app/models/song.dart';
-import 'package:flutter_repsync_app/models/setlist.dart';
-import 'package:flutter_repsync_app/models/metronome_state.dart';
+import 'package:metronome_app/widgets/metronome/song_library_block.dart';
+import 'package:metronome_app/providers/metronome_provider.dart';
+import 'package:metronome_app/providers/data/data_providers.dart';
+import 'package:metronome_app/models/song.dart';
+import 'package:metronome_app/models/setlist.dart';
+import 'package:metronome_app/models/metronome_state.dart';
 
 // Test notifier that returns a specific state
 class TestMetronomeNotifier extends MetronomeNotifier {

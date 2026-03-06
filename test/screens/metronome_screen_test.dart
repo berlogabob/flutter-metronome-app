@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_repsync_app/screens/metronome_screen.dart';
-import 'package:flutter_repsync_app/providers/metronome_provider.dart';
+import 'package:metronome_app/screens/metronome_screen.dart';
+import 'package:metronome_app/providers/metronome_provider.dart';
 
 import '../helpers/test_helpers.dart';
 

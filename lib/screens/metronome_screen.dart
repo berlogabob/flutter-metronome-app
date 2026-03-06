@@ -51,7 +51,6 @@ class _MetronomeScreenState extends ConsumerState<MetronomeScreen> {
         mainWidget: _buildMainContent(context),
         secondaryWidget: const FineAdjustmentButtons(),
         bottomWidget: _buildBottomContent(),
-        showOfflineIndicator: true,
       ),
     );
   }
