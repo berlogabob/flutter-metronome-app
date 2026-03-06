@@ -11,6 +11,9 @@ void main() async {
   // Initialize dotenv for environment variables
   await dotenv.load(fileName: '.env');
   
+  // Debug: Check if API key is loaded
+  debugPrint('Firebase API Key loaded: ${dotenv.env['FIREBASE_API_KEY'] != null}');
+  
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
