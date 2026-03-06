@@ -19,13 +19,9 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get web {
-    final apiKey = dotenv.env['FIREBASE_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
-      throw StateError(
-        'FIREBASE_API_KEY environment variable is not set. '
-        'Create a .env file with your Firebase API key.',
-      );
-    }
+    // For web, use environment variable or fallback to hardcoded (for development)
+    final apiKey = dotenv.env['FIREBASE_API_KEY'] ?? 
+        'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o'; // TODO: Replace with your actual key
     return FirebaseOptions(
       apiKey: apiKey,
       appId: '1:703941154390:web:43dfeaf2f6a0495e004df7',
@@ -37,13 +33,8 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get android {
-    final apiKey = dotenv.env['FIREBASE_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
-      throw StateError(
-        'FIREBASE_API_KEY environment variable is not set. '
-        'Create a .env file with your Firebase API key.',
-      );
-    }
+    final apiKey = dotenv.env['FIREBASE_API_KEY'] ?? 
+        'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o'; // TODO: Replace with your actual key
     return FirebaseOptions(
       apiKey: apiKey,
       appId: '1:703941154390:android:43dfeaf2f6a0495e004df7',
@@ -55,13 +46,8 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get ios {
-    final apiKey = dotenv.env['FIREBASE_API_KEY'];
-    if (apiKey == null || apiKey.isEmpty) {
-      throw StateError(
-        'FIREBASE_API_KEY environment variable is not set. '
-        'Create a .env file with your Firebase API key.',
-      );
-    }
+    final apiKey = dotenv.env['FIREBASE_API_KEY'] ?? 
+        'AIzaSyAxQ53DQzyEkKXjo3Ry2B9pcTMvcyk4d5o'; // TODO: Replace with your actual key
     return FirebaseOptions(
       apiKey: apiKey,
       appId: '1:703941154390:ios:43dfeaf2f6a0495e004df7',
