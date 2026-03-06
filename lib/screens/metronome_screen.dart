@@ -12,7 +12,7 @@ import '../../models/song.dart';
 import '../../models/metronome_state.dart';
 import '../../services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../providers/data/metronome_provider.dart';
+import '../../providers/metronome_provider.dart';
 
 /// Metronome Screen - ToolScreenScaffold Migration (Sprint 5)
 ///

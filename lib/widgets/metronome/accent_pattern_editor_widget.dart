@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/data/metronome_provider.dart';
+import '../../providers/metronome_provider.dart';
 import '../../theme/mono_pulse_theme.dart';
 
 /// Accent Pattern Editor widget - Visual toggle buttons for each beat

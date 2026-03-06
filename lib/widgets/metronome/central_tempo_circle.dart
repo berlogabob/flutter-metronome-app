@@ -2,7 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/data/metronome_provider.dart';
+import '../../providers/metronome_provider.dart';
 import '../../models/metronome_state.dart';
 import '../../theme/mono_pulse_theme.dart';
 import 'tempo_change_dialog.dart';

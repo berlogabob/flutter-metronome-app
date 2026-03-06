@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_repsync_app/providers/data/metronome_provider.dart';
+import 'package:flutter_repsync_app/providers/metronome_provider.dart';
 import 'package:flutter_repsync_app/models/song.dart';
 import 'package:flutter_repsync_app/models/setlist.dart';
 import 'package:flutter_repsync_app/models/beat_mode.dart';

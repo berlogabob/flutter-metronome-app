@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/data/metronome_provider.dart';
+import '../../providers/metronome_provider.dart';
 import '../../theme/mono_pulse_theme.dart';
 import '../../models/song.dart';
 import '../../models/metronome_state.dart';
 import '../../services/firestore_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../widgets/settings/tone_settings_dialog.dart';
 
 /// Three Dots Menu Popup - Mono Pulse design (Sprint Fix)
 ///
@@ -77,6 +78,20 @@ class _MenuPopupState extends ConsumerState<MenuPopup> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Tone Settings
+                        _MenuItem(
+                          icon: Icons.tune_outlined,
+                          label: 'Tone Settings',
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            widget.onClose();
+                            _openToneSettings(context);
+                          },
+                        ),
+                        const Divider(
+                          height: 1,
+                          color: MonoPulseColors.borderSubtle,
+                        ),
                         // Save to Song (only shown when song is loaded)
                         if (state.loadedSong != null) ...[
                           _MenuItem(
@@ -164,6 +179,15 @@ class _MenuPopupState extends ConsumerState<MenuPopup> {
       if (!context.mounted) return;
       _showErrorSnackBar(context, 'Failed to save: $e');
     }
+  }
+
+  /// Open tone settings fullscreen dialog
+  void _openToneSettings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const ToneSettingsDialog(),
+      ),
+    );
   }
 
   void _showSuccessSnackBar(BuildContext context, String message) {

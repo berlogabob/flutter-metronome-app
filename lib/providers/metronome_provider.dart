@@ -27,7 +27,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   void start(int bpm, int beatsPerMeasure) {
     if (state.isPlaying) return;
 
-    final clampedBpm = bpm.clamp(40, 220);
+    // Restricted BPM range: 10-260 (more realistic, reduces edge cases)
+    final clampedBpm = bpm.clamp(10, 260);
     final timeSignature = TimeSignature(
       numerator: beatsPerMeasure,
       denominator: state.timeSignature.denominator,
@@ -70,7 +71,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
   /// Update BPM while playing
   void setBpm(int bpm) {
-    final clampedBpm = bpm.clamp(40, 220);
+    // Restricted BPM range: 10-260
+    final clampedBpm = bpm.clamp(10, 260);
     state = state.copyWith(bpm: clampedBpm);
 
     if (state.isPlaying) {
@@ -123,13 +125,13 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
   /// Rotate tempo using rotary dial gesture
   void rotateTempo(double degrees) {
-    final bpmChange = (degrees / 288)
-        .round(); // 288 degrees = 1 BPM (4x slower than 72)
-    final newBpm = (state.bpm + bpmChange).clamp(1, 300);
+    final bpmChange = (degrees / 288).round();
+    // Restricted BPM range: 10-260
+    final newBpm = (state.bpm + bpmChange).clamp(10, 260);
 
-    // Stop at limits - don't wrap around
-    if (newBpm == state.bpm && (state.bpm == 1 || state.bpm == 300)) {
-      return; // At limit, don't update
+    // Stop at limits
+    if (newBpm == state.bpm && (state.bpm == 10 || state.bpm == 260)) {
+      return;
     }
 
     state = state.copyWith(bpm: newBpm);
@@ -142,7 +144,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
   /// Fine adjustment for tempo (+1, +5, +10 buttons)
   void adjustTempoFine(int delta) {
-    final newBpm = (state.bpm + delta).clamp(1, 300);
+    // Restricted BPM range: 10-260
+    final newBpm = (state.bpm + delta).clamp(10, 260);
     state = state.copyWith(bpm: newBpm);
 
     if (state.isPlaying) {
@@ -159,7 +162,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     // Load BPM from song (prefer ourBPM, fallback to originalBPM)
     final songBpm = song.ourBPM ?? song.originalBPM;
     if (songBpm != null) {
-      final clampedBpm = songBpm.clamp(1, 300);
+      // Restricted BPM range: 10-260
+      final clampedBpm = songBpm.clamp(10, 260);
       state = state.copyWith(bpm: clampedBpm);
     }
 
@@ -244,7 +248,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
   /// Set tempo directly
   void setTempoDirectly(int bpm) {
-    final clampedBpm = bpm.clamp(1, 300);
+    // Restricted BPM range: 10-260
+    final clampedBpm = bpm.clamp(10, 260);
     state = state.copyWith(bpm: clampedBpm);
 
     if (state.isPlaying) {
