@@ -377,7 +377,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   void dispose() {
     _timer?.cancel();
     _audioEngine.dispose();
-    super.dispose();
+    // Note: Not calling super.dispose() in Riverpod 3.x Notifier
   }
 }
 

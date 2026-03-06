@@ -20,9 +20,20 @@ class ToneSettingsDialog extends ConsumerStatefulWidget {
 class _ToneSettingsDialogState extends ConsumerState<ToneSettingsDialog> {
   @override
   Widget build(BuildContext context) {
-    final config = ref.watch(globalToneConfigProvider);
-    final notifier = ref.read(globalToneConfigProvider.notifier);
+    final configAsync = ref.watch(globalToneConfigProvider);
+    
+    return configAsync.when(
+      data: (config) => _buildContent(config),
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (error, stack) => Center(
+        child: Text('Error loading settings: $error'),
+      ),
+    );
+  }
 
+  Widget _buildContent(MetronomeToneConfig config) {
+    final notifier = ref.read(globalToneConfigProvider.notifier);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Tone Settings'),
