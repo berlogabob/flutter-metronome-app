@@ -11,9 +11,8 @@ MetronomePreset _$MetronomePresetFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       bpm: (json['bpm'] as num).toInt(),
-      timeSignature: TimeSignature.fromJson(
-        json['timeSignature'] as Map<String, dynamic>,
-      ),
+      timeSignature:
+          TimeSignature.fromJson(json['timeSignature'] as Map<String, dynamic>),
       waveType: json['waveType'] as String? ?? 'sine',
       accentEnabled: json['accentEnabled'] as bool? ?? true,
       createdAt: _parseDateTime(json['createdAt']),
