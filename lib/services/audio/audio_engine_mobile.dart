@@ -102,29 +102,33 @@ class AudioEngine implements IAudioEngine {
   /// On Android, the first AudioPlayer.play() call triggers native initialization
   /// which can take 100-200ms per player. By pre-warming during app startup,
   /// we eliminate this latency from the critical path (user pressing START).
+  ///
+  /// CRITICAL: Must play ACTUAL audio data (not silent) to fully initialize
+  /// the native audio pipeline. Silent buffers don't trigger full initialization.
   Future<void> _preWarmPlayers() async {
     try {
-      // Generate a silent buffer for warming (1ms of silence)
-      final silentBuffer = _generateClickSound(
-        frequency: 1.0,  // Inaudible frequency
+      // Generate a REAL click sound for warming (800Hz sine, short duration)
+      // This ensures the native audio pipeline is fully initialized
+      final warmBuffer = _generateClickSound(
+        frequency: 800.0,  // Audible frequency
         waveType: 'sine',
-        volume: 0.0,  // Silent
+        volume: 0.1,       // Quiet but audible
       );
 
-      // Play silent buffer on each player to trigger native initialization
+      // Play real buffer on each player to trigger FULL native initialization
       for (int i = 0; i < _players.length; i++) {
         final player = _players[i];
-        // Set volume to 0 for warm-up (silent)
-        await player.setVolume(0.0);
-        // Play silent buffer - triggers platform channel init without sound
-        await player.play(BytesSource(silentBuffer), volume: 0.0);
-        // Small delay to ensure initialization completes
-        await Future.delayed(const Duration(milliseconds: 10));
+        // Set volume low for warm-up (quiet click)
+        await player.setVolume(0.1);
+        // Play real buffer - triggers full platform channel init
+        await player.play(BytesSource(warmBuffer), volume: 0.1);
+        // Wait for playback to complete (~40ms) + small buffer
+        await Future.delayed(const Duration(milliseconds: 60));
         // Restore volume
         await player.setVolume(1.0);
       }
 
-      debugPrint('[AudioEngine] Pre-warmed ${_players.length} audio players');
+      debugPrint('[AudioEngine] Pre-warmed ${_players.length} audio players with REAL audio data');
     } catch (e) {
       // Non-critical: pre-warming failure doesn't break functionality
       debugPrint('[AudioEngine] Pre-warm failed (non-critical): $e');
