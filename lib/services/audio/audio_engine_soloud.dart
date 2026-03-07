@@ -44,14 +44,14 @@ class AudioEngineSoloud implements IAudioEngine {
     if (_initialized) return;
 
     try {
-      // Initialize SoLoud audio engine
+      // Initialize SoLoud audio engine with low-latency settings
       await _soloud.init(
-        sampleRate: 44100,
-        bufferSize: 2048, // Lower = lower latency
+        sampleRate: 48000, // Higher sample rate for lower latency
+        bufferSize: 1024, // Smaller buffer = lower latency (was 2048)
         channels: Channels.stereo,
       );
 
-      debugPrint('[AudioEngineSoloud] SoLoud initialized');
+      debugPrint('[AudioEngineSoloud] SoLoud initialized (48kHz, 1024 buffer)');
 
       // Pre-generate ALL 24 sounds at startup
       await _preGenerateAllSounds();
@@ -139,14 +139,12 @@ class AudioEngineSoloud implements IAudioEngine {
       }
 
       // Play with volume control at playback time (<10ms latency)
-      final handle = await _soloud.play(
+      // Don't use scheduleStop - let envelope handle the decay
+      await _soloud.play(
         source,
         volume: volume.clamp(0.0, 1.0),
         looping: false,
       );
-
-      // Schedule automatic stop after 50ms (short click)
-      _soloud.scheduleStop(handle, const Duration(milliseconds: 50));
 
       debugPrint(
         '[AudioEngineSoloud] Played: accent=$isAccent, freq=${frequency}Hz, wave=$waveType, vol=$volume',

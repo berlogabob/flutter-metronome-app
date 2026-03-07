@@ -43,7 +43,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   late IAudioEngine _audioEngine;
 
   /// Static factory for creating audio engine - can be overridden in tests
-  static IAudioEngine Function() _audioEngineFactory = () => AudioEngineSoloud();
+  static IAudioEngine Function() _audioEngineFactory = () => AudioEngine();
 
   /// Initialize audio engine - called in build() from shared pre-initialized instance
   /// No lazy initialization needed - audio is already ready in main()
@@ -56,7 +56,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
   /// Reset the audio engine factory to default - used for test cleanup
   static void resetAudioEngineFactory() {
-    _audioEngineFactory = () => AudioEngineSoloud();
+    _audioEngineFactory = () => AudioEngine();
   }
 
   /// Initializes the metronome state.
