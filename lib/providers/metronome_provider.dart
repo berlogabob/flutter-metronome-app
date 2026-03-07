@@ -36,7 +36,8 @@ import '../../services/audio/i_audio_engine.dart';
 /// ```
 class MetronomeNotifier extends Notifier<MetronomeState> {
   Timer? _timer;
-  
+  int _startTime = 0; // Timestamp when START was pressed (for timing measurements)
+
   /// Audio engine instance - can be overridden for testing
   /// Uses late initialization to allow injection before first use
   late IAudioEngine _audioEngine;
@@ -83,8 +84,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   void start(int bpm, int beatsPerMeasure) {
     if (state.isPlaying) return;
 
-    final startTime = DateTime.now().millisecondsSinceEpoch;
-    debugPrint('[Metronome] START called at ${startTime}ms (audio initialized=${_audioEngine.initialized})');
+    _startTime = DateTime.now().millisecondsSinceEpoch;
+    debugPrint('[Metronome] START pressed at ${_startTime}ms (audio initialized=${_audioEngine.initialized})');
 
     // Restricted BPM range: 10-260 (more realistic, reduces edge cases)
     final clampedBpm = bpm.clamp(10, 260);
@@ -522,13 +523,16 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
         accentFrequency: frequency,
         beatFrequency: frequency,
       );
+      
+      final audioTime = DateTime.now().millisecondsSinceEpoch;
+      debugPrint('[Metronome] Audio PLAYED at ${audioTime}ms (delay=${audioTime - _startTime}ms, beat=$nextTick)');
     }
 
     // Vibration on beats (synchronized with audio)
     // NOTE: This is SEPARATE from UI button haptic feedback
     if (state.vibrationEnabled && shouldPlay) {
       final vibrationTime = DateTime.now().millisecondsSinceEpoch;
-      debugPrint('[Metronome] Vibration TRIGGERED at ${vibrationTime}ms (delay=${vibrationTime - startTime}ms, enabled=${state.vibrationEnabled}, beat=$nextTick)');
+      debugPrint('[Metronome] Vibration TRIGGERED at ${vibrationTime}ms (delay=${vibrationTime - _startTime}ms, beat=$nextTick)');
       HapticFeedback.vibrate();
     } else if (shouldPlay) {
       debugPrint('[Metronome] Vibration SKIPPED (enabled=${state.vibrationEnabled}, beat=$nextTick)');
