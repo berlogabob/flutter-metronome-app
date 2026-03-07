@@ -15,6 +15,9 @@ abstract class IAudioPlayer {
   Future<void> setReleaseMode(ReleaseMode mode);
   Future<void> setVolume(double volume);
   Future<void> play(BytesSource source, {double? volume});
+  Future<void> setSource(BytesSource source);
+  Future<void> resume();
+  Future<void> pause();
   void dispose();
 }
 
@@ -99,36 +102,43 @@ class AudioEngine implements IAudioEngine {
 
   /// Pre-warm audio players to eliminate platform channel initialization latency
   ///
-  /// On Android, the first AudioPlayer.play() call triggers native initialization
-  /// which can take 100-200ms per player. By pre-warming during app startup,
-  /// we eliminate this latency from the critical path (user pressing START).
-  ///
-  /// CRITICAL: Must play ACTUAL audio data (not silent) to fully initialize
-  /// the native audio pipeline. Silent buffers don't trigger full initialization.
+  /// CRITICAL: Must load ACTUAL audio data into each player during pre-warm.
+  /// On Android, the first play() with new data triggers native initialization (~100-200ms).
+  /// By loading data upfront, we eliminate this from the critical path.
   Future<void> _preWarmPlayers() async {
     try {
-      // Generate a REAL click sound for warming (800Hz sine, short duration)
-      // This ensures the native audio pipeline is fully initialized
+      // Generate a warm-up buffer (800Hz sine, audible but quiet)
       final warmBuffer = _generateClickSound(
-        frequency: 800.0,  // Audible frequency
+        frequency: 800.0,
         waveType: 'sine',
-        volume: 0.1,       // Quiet but audible
+        volume: 0.1,
       );
 
-      // Play real buffer on each player to trigger FULL native initialization
+      // Load audio data into each player and play briefly
       for (int i = 0; i < _players.length; i++) {
         final player = _players[i];
-        // Set volume low for warm-up (quiet click)
-        await player.setVolume(0.1);
-        // Play real buffer - triggers full platform channel init
-        await player.play(BytesSource(warmBuffer), volume: 0.1);
-        // Wait for playback to complete (~40ms) + small buffer
-        await Future.delayed(const Duration(milliseconds: 60));
-        // Restore volume
+        
+        // Set volume low for warm-up (silent)
+        await player.setVolume(0.01);
+        
+        // Load audio data - THIS IS THE KEY STEP!
+        // This triggers native MediaPlayer preparation
+        await player.setSource(BytesSource(warmBuffer));
+        
+        // Play briefly to fully initialize
+        await player.resume();
+        
+        // Wait for playback to complete (~40ms) + buffer
+        await Future.delayed(const Duration(milliseconds: 100));
+        
+        // Pause (don't dispose - keep player warm)
+        await player.pause();
+        
+        // Reset volume for playback
         await player.setVolume(1.0);
       }
 
-      debugPrint('[AudioEngine] Pre-warmed ${_players.length} audio players with REAL audio data');
+      debugPrint('[AudioEngine] Pre-warmed ${_players.length} players with audio data loaded');
     } catch (e) {
       // Non-critical: pre-warming failure doesn't break functionality
       debugPrint('[AudioEngine] Pre-warm failed (non-critical): $e');
@@ -174,11 +184,13 @@ class AudioEngine implements IAudioEngine {
       }
 
       // Play with next available player (round-robin)
+      // Player already has source loaded from pre-warm, just change volume and play
       final player = _players[_currentPlayerIndex];
       _currentPlayerIndex = (_currentPlayerIndex + 1) % _players.length;
-      
-      // Apply volume at playback time (buffers are stored at 1.0)
-      await player.play(BytesSource(bytes), volume: volume.clamp(0.0, 1.0));
+
+      // Set volume and play instantly (source already loaded)
+      await player.setVolume(volume.clamp(0.0, 1.0));
+      await player.resume(); // resume() is faster than play() for pre-loaded source
 
       debugPrint(
         '[AudioEngine] Played click: accent=$isAccent, freq=${frequency}Hz, wave=$waveType, vol=$volume',

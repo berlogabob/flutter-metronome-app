@@ -1,2 +1,1 @@
-// Conditional exports for audio engine
-export 'audio_engine_web.dart' if (dart.library.io) 'audio_engine_mobile.dart';
+// Audio engine export - audioplayers for all platforms\nexport 'i_audio_engine.dart';\nexport 'audio_engine_mobile.dart';

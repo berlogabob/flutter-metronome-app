@@ -21,5 +21,14 @@ class AudioPlayerAdapter implements IAudioPlayer {
   Future<void> play(BytesSource source, {double? volume}) => _player.play(source, volume: volume);
 
   @override
+  Future<void> setSource(BytesSource source) => _player.setSource(source);
+
+  @override
+  Future<void> resume() => _player.resume();
+
+  @override
+  Future<void> pause() => _player.pause();
+
+  @override
   void dispose() => _player.dispose();
 }
