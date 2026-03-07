@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:vibration/vibration.dart';
 import '../../models/metronome_state.dart';
 import '../../models/time_signature.dart';
 import '../../models/song.dart';
@@ -521,7 +522,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
 
     // Vibration on beats (synchronized with audio)
     if (state.vibrationEnabled && shouldPlay) {
-      Vibration.vibrate(duration: isMainBeat ? 50 : 30);
+      HapticFeedback.vibrate();
     }
 
     state = state.copyWith(currentBeat: nextTick);

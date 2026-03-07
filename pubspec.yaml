@@ -29,7 +29,6 @@ dependencies:
   audioplayers: ^6.4.0
 
   # Haptic Feedback
-  vibration: ^1.8.4
 
   # Persistence & Utils
   shared_preferences: ^2.5.4
