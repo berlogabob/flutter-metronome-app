@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router/app_router.dart';
-import 'services/audio/audio_engine_export.dart';
+import 'services/audio/audio_engine_mobile.dart';
 import 'services/audio/i_audio_engine.dart';
 import 'providers/metronome_provider.dart';
 

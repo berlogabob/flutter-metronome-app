@@ -102,9 +102,9 @@ class AudioEngine implements IAudioEngine {
 
   /// Pre-warm audio players to eliminate platform channel initialization latency
   ///
-  /// CRITICAL: Must load ACTUAL audio data into each player during pre-warm.
-  /// On Android, the first play() with new data triggers native initialization (~100-200ms).
-  /// By loading data upfront, we eliminate this from the critical path.
+  /// CRITICAL: Must play ACTUAL audio data during pre-warm.
+  /// On Android, the first play() triggers native MediaPlayer preparation (~100-200ms).
+  /// By playing upfront during app startup, we eliminate this from the critical path.
   Future<void> _preWarmPlayers() async {
     try {
       // Generate a warm-up buffer (800Hz sine, audible but quiet)
@@ -114,31 +114,21 @@ class AudioEngine implements IAudioEngine {
         volume: 0.1,
       );
 
-      // Load audio data into each player and play briefly
+      // Play through each player to trigger native initialization
       for (int i = 0; i < _players.length; i++) {
         final player = _players[i];
         
-        // Set volume low for warm-up (silent)
+        // Set volume low for warm-up (quiet click)
         await player.setVolume(0.01);
         
-        // Load audio data - THIS IS THE KEY STEP!
-        // This triggers native MediaPlayer preparation
-        await player.setSource(BytesSource(warmBuffer));
-        
-        // Play briefly to fully initialize
-        await player.resume();
+        // Play warm-up buffer - THIS triggers MediaPlayer preparation
+        await player.play(BytesSource(warmBuffer), volume: 0.01);
         
         // Wait for playback to complete (~40ms) + buffer
         await Future.delayed(const Duration(milliseconds: 100));
-        
-        // Pause (don't dispose - keep player warm)
-        await player.pause();
-        
-        // Reset volume for playback
-        await player.setVolume(1.0);
       }
 
-      debugPrint('[AudioEngine] Pre-warmed ${_players.length} players with audio data loaded');
+      debugPrint('[AudioEngine] Pre-warmed ${_players.length} players with actual playback');
     } catch (e) {
       // Non-critical: pre-warming failure doesn't break functionality
       debugPrint('[AudioEngine] Pre-warm failed (non-critical): $e');
@@ -184,13 +174,12 @@ class AudioEngine implements IAudioEngine {
       }
 
       // Play with next available player (round-robin)
-      // Player already has source loaded from pre-warm, just change volume and play
       final player = _players[_currentPlayerIndex];
       _currentPlayerIndex = (_currentPlayerIndex + 1) % _players.length;
 
-      // Set volume and play instantly (source already loaded)
-      await player.setVolume(volume.clamp(0.0, 1.0));
-      await player.resume(); // resume() is faster than play() for pre-loaded source
+      // Apply volume at playback time and play with actual audio data
+      // This ensures correct frequency/waveType for accents
+      await player.play(BytesSource(bytes), volume: volume.clamp(0.0, 1.0));
 
       debugPrint(
         '[AudioEngine] Played click: accent=$isAccent, freq=${frequency}Hz, wave=$waveType, vol=$volume',

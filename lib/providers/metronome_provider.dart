@@ -7,7 +7,7 @@ import '../../models/time_signature.dart';
 import '../../models/song.dart';
 import '../../models/setlist.dart';
 import '../../models/beat_mode.dart';
-import '../../services/audio/audio_engine_export.dart';
+import '../../services/audio/audio_engine_mobile.dart';
 import '../../services/audio/i_audio_engine.dart';
 
 /// Metronome state management notifier using Riverpod 3.x.
