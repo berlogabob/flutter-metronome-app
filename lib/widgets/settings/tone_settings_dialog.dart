@@ -13,6 +13,8 @@
 ///   MaterialPageRoute(builder: (_) => const ToneSettingsDialog()),
 /// );
 /// ```
+library tone_settings_dialog;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

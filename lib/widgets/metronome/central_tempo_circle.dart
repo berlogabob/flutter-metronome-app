@@ -322,7 +322,7 @@ class _RingPainter extends CustomPainter {
   final double progress;
   final double strokeWidth;
 
-  _RingPainter({required this.progress, required this.strokeWidth});
+  const _RingPainter({required this.progress, required this.strokeWidth});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -465,7 +465,7 @@ class _TickMarksPainter extends CustomPainter {
   final double size;
   final bool isSmallScreen;
 
-  _TickMarksPainter({required this.size, this.isSmallScreen = false});
+  const _TickMarksPainter({required this.size, this.isSmallScreen = false});
 
   @override
   void paint(Canvas canvas, Size canvasSize) {

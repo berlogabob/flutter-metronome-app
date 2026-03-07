@@ -257,52 +257,57 @@ class _ModeButtonState extends State<_ModeButton> {
     final isPressed = _isPressed;
     final isSelected = widget.isSelected;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: isPressed ? 0.95 : 1.0,
-        duration: MonoPulseAnimation.durationShort,
-        curve: MonoPulseAnimation.curveCustom,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: MonoPulseSpacing.lg),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? MonoPulseColors.accentOrange.withValues(alpha: 0.15)
-                : MonoPulseColors.blackElevated,
-            borderRadius: BorderRadius.circular(MonoPulseRadius.large),
-            border: Border.all(
+    return Semantics(
+      label: '${widget.label} tempo mode${isSelected ? ", selected" : ""}',
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          widget.onTap();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: isPressed ? 0.95 : 1.0,
+          duration: MonoPulseAnimation.durationShort,
+          curve: MonoPulseAnimation.curveCustom,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: MonoPulseSpacing.lg),
+            decoration: BoxDecoration(
               color: isSelected
-                  ? MonoPulseColors.accentOrange
-                  : MonoPulseColors.borderSubtle,
-              width: 1.5,
-            ),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                widget.icon,
+                  ? MonoPulseColors.accentOrange.withValues(alpha: 0.15)
+                  : MonoPulseColors.blackElevated,
+              borderRadius: BorderRadius.circular(MonoPulseRadius.large),
+              border: Border.all(
                 color: isSelected
                     ? MonoPulseColors.accentOrange
-                    : MonoPulseColors.textSecondary,
-                size: 20,
+                    : MonoPulseColors.borderSubtle,
+                width: 1.5,
               ),
-              const SizedBox(width: MonoPulseSpacing.sm),
-              Text(
-                widget.label,
-                style: MonoPulseTypography.labelLarge.copyWith(
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  widget.icon,
                   color: isSelected
                       ? MonoPulseColors.accentOrange
                       : MonoPulseColors.textSecondary,
-                  fontWeight: FontWeight.w600,
+                  size: 20,
                 ),
-              ),
-            ],
+                const SizedBox(width: MonoPulseSpacing.sm),
+                Text(
+                  widget.label,
+                  style: MonoPulseTypography.labelLarge.copyWith(
+                    color: isSelected
+                        ? MonoPulseColors.accentOrange
+                        : MonoPulseColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -354,43 +359,48 @@ class _ActionButtonState extends State<_ActionButton> {
     final isPressed = _isPressed;
     final isEnabled = widget.isEnabled;
 
-    return GestureDetector(
-      onTapDown: (_) {
-        if (isEnabled) setState(() => _isPressed = true);
-      },
-      onTapUp: (_) {
-        if (isEnabled) {
-          setState(() => _isPressed = false);
-          widget.onTap();
-        }
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: isPressed ? 0.95 : 1.0,
-        duration: MonoPulseAnimation.durationShort,
-        curve: MonoPulseAnimation.curveCustom,
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: MonoPulseSpacing.lg),
-          decoration: BoxDecoration(
-            color: widget.isPrimary
-                ? (isEnabled
-                      ? MonoPulseColors.accentOrange
-                      : MonoPulseColors.borderDefault)
-                : MonoPulseColors.blackElevated,
-            borderRadius: BorderRadius.circular(MonoPulseRadius.large),
-          ),
-          child: Center(
-            child: Text(
-              widget.label,
-              style: MonoPulseTypography.labelLarge.copyWith(
-                color: widget.isPrimary
-                    ? (isEnabled
-                          ? MonoPulseColors.black
-                          : MonoPulseColors.textDisabled)
-                    : (isEnabled
-                          ? MonoPulseColors.textSecondary
-                          : MonoPulseColors.textDisabled),
-                fontWeight: FontWeight.w600,
+    return Semantics(
+      label: widget.label,
+      button: true,
+      enabled: isEnabled,
+      child: GestureDetector(
+        onTapDown: (_) {
+          if (isEnabled) setState(() => _isPressed = true);
+        },
+        onTapUp: (_) {
+          if (isEnabled) {
+            setState(() => _isPressed = false);
+            widget.onTap();
+          }
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: isPressed ? 0.95 : 1.0,
+          duration: MonoPulseAnimation.durationShort,
+          curve: MonoPulseAnimation.curveCustom,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: MonoPulseSpacing.lg),
+            decoration: BoxDecoration(
+              color: widget.isPrimary
+                  ? (isEnabled
+                        ? MonoPulseColors.accentOrange
+                        : MonoPulseColors.borderDefault)
+                  : MonoPulseColors.blackElevated,
+              borderRadius: BorderRadius.circular(MonoPulseRadius.large),
+            ),
+            child: Center(
+              child: Text(
+                widget.label,
+                style: MonoPulseTypography.labelLarge.copyWith(
+                  color: widget.isPrimary
+                      ? (isEnabled
+                            ? MonoPulseColors.black
+                            : MonoPulseColors.textDisabled)
+                      : (isEnabled
+                            ? MonoPulseColors.textSecondary
+                            : MonoPulseColors.textDisabled),
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ),

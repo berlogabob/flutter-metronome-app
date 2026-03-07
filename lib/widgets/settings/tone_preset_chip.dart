@@ -11,6 +11,8 @@
 ///   notifier: notifier,
 /// ),
 /// ```
+library tone_preset_chip;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/mono_pulse_theme.dart';
@@ -44,21 +46,24 @@ class _TonePresetChipState extends State<TonePresetChip> {
 
   @override
   Widget build(BuildContext context) {
-    return FilterChip(
-      label: Text(widget.name),
-      onSelected: _handleSelect,
-      selected: _isSelected,
-      selectedColor: MonoPulseColors.accentOrangeSubtle,
-      checkmarkColor: MonoPulseColors.accentOrange,
-      labelStyle: TextStyle(
-        color: _isSelected
-            ? MonoPulseColors.accentOrange
-            : MonoPulseColors.textPrimary,
-      ),
-      side: BorderSide(
-        color: _isSelected
-            ? MonoPulseColors.accentOrange
-            : MonoPulseColors.borderDefault,
+    return Semantics(
+      label: '${widget.name} tone preset${_isSelected ? ", selected" : ""}',
+      child: FilterChip(
+        label: Text(widget.name),
+        onSelected: _handleSelect,
+        selected: _isSelected,
+        selectedColor: MonoPulseColors.accentOrangeSubtle,
+        checkmarkColor: MonoPulseColors.accentOrange,
+        labelStyle: TextStyle(
+          color: _isSelected
+              ? MonoPulseColors.accentOrange
+              : MonoPulseColors.textPrimary,
+        ),
+        side: BorderSide(
+          color: _isSelected
+              ? MonoPulseColors.accentOrange
+              : MonoPulseColors.borderDefault,
+        ),
       ),
     );
   }

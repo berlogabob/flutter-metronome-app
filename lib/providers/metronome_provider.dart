@@ -6,6 +6,7 @@ import '../../models/song.dart';
 import '../../models/setlist.dart';
 import '../../models/beat_mode.dart';
 import '../../services/audio/audio_engine_export.dart';
+import '../../services/audio/i_audio_engine.dart';
 
 /// Metronome state management notifier using Riverpod 3.x.
 ///
@@ -33,14 +34,40 @@ import '../../services/audio/audio_engine_export.dart';
 /// ```
 class MetronomeNotifier extends Notifier<MetronomeState> {
   Timer? _timer;
-  final AudioEngine _audioEngine = AudioEngine();
+  
+  /// Audio engine instance - can be overridden for testing
+  /// Uses late initialization to allow injection before first use
+  late IAudioEngine _audioEngine;
+  
+  /// Static factory for creating audio engine - can be overridden in tests
+  static IAudioEngine Function() _audioEngineFactory = () => AudioEngine();
+
+  /// Initialize audio engine - called lazily on first access
+  void _ensureAudioEngine() {
+    if (!_audioEngine.initialized) {
+      _audioEngine.initialize();
+    }
+  }
+
+  /// Override the audio engine factory - used for testing
+  /// Call this before creating the provider to use a mock
+  static void setAudioEngineFactory(IAudioEngine Function() factory) {
+    _audioEngineFactory = factory;
+  }
+
+  /// Reset the audio engine factory to default - used for test cleanup
+  static void resetAudioEngineFactory() {
+    _audioEngineFactory = () => AudioEngine();
+  }
 
   /// Initializes the metronome state.
   ///
   /// Called by Riverpod when the provider is first created.
   /// Returns the initial stopped state with default settings.
+  /// Also initializes the audio engine.
   @override
   MetronomeState build() {
+    _audioEngine = _audioEngineFactory();
     return MetronomeState.initial();
   }
 
@@ -76,7 +103,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
 
     // Initialize audio on first start (requires user interaction)
-    _audioEngine.initialize();
+    _ensureAudioEngine();
 
     state = state.copyWith(
       isPlaying: true,
@@ -413,6 +440,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   ///
   /// Useful for checking volume and wave type before starting playback.
   Future<void> playTest() async {
+    _ensureAudioEngine();
     await _audioEngine.playTest();
   }
 
@@ -472,6 +500,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
 
     if (shouldPlay) {
+      _ensureAudioEngine();
       _audioEngine.playClick(
         isAccent: isMainBeat,
         waveType: state.waveType,

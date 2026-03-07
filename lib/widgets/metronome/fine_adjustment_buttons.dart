@@ -39,142 +39,77 @@ class FineAdjustmentButtons extends ConsumerWidget {
               ? MonoPulseSpacing.xs
               : MonoPulseSpacing.sm;
 
+          final buttons = <Widget>[
+            _TempoButton(
+              arrowCount: 3,
+              direction: -1,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                metronome.adjustTempoFine(-10);
+              },
+              isSmallScreen: isSmallScreen,
+            ),
+            SizedBox(width: buttonSpacing),
+            _TempoButton(
+              arrowCount: 2,
+              direction: -1,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                metronome.adjustTempoFine(-5);
+              },
+              isSmallScreen: isSmallScreen,
+            ),
+            SizedBox(width: buttonSpacing),
+            _TempoButton(
+              arrowCount: 1,
+              direction: -1,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                metronome.adjustTempoFine(-1);
+              },
+              isSmallScreen: isSmallScreen,
+            ),
+            SizedBox(width: buttonSpacing),
+            _TempoButton(
+              arrowCount: 1,
+              direction: 1,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                metronome.adjustTempoFine(1);
+              },
+              isSmallScreen: isSmallScreen,
+            ),
+            SizedBox(width: buttonSpacing),
+            _TempoButton(
+              arrowCount: 2,
+              direction: 1,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                metronome.adjustTempoFine(5);
+              },
+              isSmallScreen: isSmallScreen,
+            ),
+            SizedBox(width: buttonSpacing),
+            _TempoButton(
+              arrowCount: 3,
+              direction: 1,
+              onTap: () {
+                HapticFeedback.lightImpact();
+                metronome.adjustTempoFine(10);
+              },
+              isSmallScreen: isSmallScreen,
+            ),
+          ];
+
           if (needsScroll) {
             return SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               physics: const ClampingScrollPhysics(),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _TempoButton(
-                    arrowCount: 3,
-                    direction: -1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      metronome.adjustTempoFine(-10);
-                    },
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  SizedBox(width: buttonSpacing),
-                  _TempoButton(
-                    arrowCount: 2,
-                    direction: -1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      metronome.adjustTempoFine(-5);
-                    },
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  SizedBox(width: buttonSpacing),
-                  _TempoButton(
-                    arrowCount: 1,
-                    direction: -1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      metronome.adjustTempoFine(-1);
-                    },
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  SizedBox(width: buttonSpacing),
-                  _TempoButton(
-                    arrowCount: 1,
-                    direction: 1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      metronome.adjustTempoFine(1);
-                    },
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  SizedBox(width: buttonSpacing),
-                  _TempoButton(
-                    arrowCount: 2,
-                    direction: 1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      metronome.adjustTempoFine(5);
-                    },
-                    isSmallScreen: isSmallScreen,
-                  ),
-                  SizedBox(width: buttonSpacing),
-                  _TempoButton(
-                    arrowCount: 3,
-                    direction: 1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      metronome.adjustTempoFine(10);
-                    },
-                    isSmallScreen: isSmallScreen,
-                  ),
-                ],
-              ),
+              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: buttons),
             );
           }
 
-          // Normal layout without scroll
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _TempoButton(
-                arrowCount: 3,
-                direction: -1,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  metronome.adjustTempoFine(-10);
-                },
-                isSmallScreen: isSmallScreen,
-              ),
-              SizedBox(width: buttonSpacing),
-              _TempoButton(
-                arrowCount: 2,
-                direction: -1,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  metronome.adjustTempoFine(-5);
-                },
-                isSmallScreen: isSmallScreen,
-              ),
-              SizedBox(width: buttonSpacing),
-              _TempoButton(
-                arrowCount: 1,
-                direction: -1,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  metronome.adjustTempoFine(-1);
-                },
-                isSmallScreen: isSmallScreen,
-              ),
-              SizedBox(width: buttonSpacing),
-              _TempoButton(
-                arrowCount: 1,
-                direction: 1,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  metronome.adjustTempoFine(1);
-                },
-                isSmallScreen: isSmallScreen,
-              ),
-              SizedBox(width: buttonSpacing),
-              _TempoButton(
-                arrowCount: 2,
-                direction: 1,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  metronome.adjustTempoFine(5);
-                },
-                isSmallScreen: isSmallScreen,
-              ),
-              SizedBox(width: buttonSpacing),
-              _TempoButton(
-                arrowCount: 3,
-                direction: 1,
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  metronome.adjustTempoFine(10);
-                },
-                isSmallScreen: isSmallScreen,
-              ),
-            ],
-          );
+          return Row(mainAxisAlignment: MainAxisAlignment.center, children: buttons);
         },
       ),
     );
@@ -207,55 +142,67 @@ class _TempoButtonState extends State<_TempoButton> {
     final buttonSize = widget.isSmallScreen ? 40.0 : 48.0;
     final arrowSize = widget.isSmallScreen ? 6.0 : 8.0;
     final iconSpacing = widget.isSmallScreen ? 1.0 : 2.0;
+    final label = _getButtonLabel();
 
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() => _isPressed = true);
-        HapticFeedback.vibrate();
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        HapticFeedback.vibrate();
-        widget.onTap();
-      },
-      onTapCancel: () {
-        setState(() => _isPressed = false);
-      },
-      child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
-        duration: MonoPulseAnimation.durationShort,
-        curve: MonoPulseAnimation.curveCustom,
-        child: Container(
-          // Compact button size for small screens
-          width: buttonSize,
-          height: buttonSize,
-          decoration: BoxDecoration(
-            color: _isPressed
-                ? MonoPulseColors.accentOrange.withValues(alpha: 0.2)
-                : MonoPulseColors.blackElevated, // #111111
-            borderRadius: BorderRadius.circular(MonoPulseRadius.huge), // 20px
-            border: Border.all(
+    return Semantics(
+      label: label,
+      button: true,
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+          HapticFeedback.vibrate();
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          HapticFeedback.vibrate();
+          widget.onTap();
+        },
+        onTapCancel: () {
+          setState(() => _isPressed = false);
+        },
+        child: AnimatedScale(
+          scale: _isPressed ? 0.95 : 1.0,
+          duration: MonoPulseAnimation.durationShort,
+          curve: MonoPulseAnimation.curveCustom,
+          child: Container(
+            // Compact button size for small screens
+            width: buttonSize,
+            height: buttonSize,
+            decoration: BoxDecoration(
               color: _isPressed
-                  ? MonoPulseColors.accentOrange
-                  : MonoPulseColors.borderSubtle, // #222222
-              width: 1,
+                  ? MonoPulseColors.accentOrange.withValues(alpha: 0.2)
+                  : MonoPulseColors.blackElevated, // #111111
+              borderRadius: BorderRadius.circular(MonoPulseRadius.huge), // 20px
+              border: Border.all(
+                color: _isPressed
+                    ? MonoPulseColors.accentOrange
+                    : MonoPulseColors.borderSubtle, // #222222
+                width: 1,
+              ),
             ),
-          ),
-          child: Center(
-            child: _ArrowIcon(
-              count: widget.arrowCount,
-              direction: widget.direction,
-              color: _isPressed
-                  ? MonoPulseColors
-                        .accentOrange // #FF5E00 on tap
-                  : MonoPulseColors.textSecondary, // #A0A0A5 default
-              arrowSize: arrowSize,
-              spacing: iconSpacing,
+            child: Center(
+              child: _ArrowIcon(
+                count: widget.arrowCount,
+                direction: widget.direction,
+                color: _isPressed
+                    ? MonoPulseColors
+                          .accentOrange // #FF5E00 on tap
+                    : MonoPulseColors.textSecondary, // #A0A0A5 default
+                arrowSize: arrowSize,
+                spacing: iconSpacing,
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  String _getButtonLabel() {
+    final directionText = widget.direction == 1 ? 'Increase' : 'Decrease';
+    final amountText = widget.arrowCount == 1 ? '1 BPM' : 
+                       widget.arrowCount == 2 ? '5 BPM' : '10 BPM';
+    return '$directionText tempo by $amountText';
   }
 }
 

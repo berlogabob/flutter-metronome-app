@@ -159,23 +159,31 @@ class MetronomePatternEditor extends StatelessWidget {
 
   /// Build a circular button for increment/decrement.
   Widget _buildCircleButton({required IconData icon, VoidCallback? onPressed}) {
-    return SizedBox(
-      width: 48,
-      height: 48,
-      child: Material(
-        color: onPressed == null
-            ? MonoPulseColors.surfaceRaised
-            : MonoPulseColors.accentOrange,
-        borderRadius: BorderRadius.circular(MonoPulseRadius.xlarge),
-        child: InkWell(
+    final isEnabled = onPressed != null;
+    final label = icon == Icons.add ? 'Increase' : 'Decrease';
+    
+    return Semantics(
+      label: '$label${isEnabled ? "" : " (disabled)"}',
+      button: true,
+      enabled: isEnabled,
+      child: SizedBox(
+        width: 48,
+        height: 48,
+        child: Material(
+          color: isEnabled
+              ? MonoPulseColors.accentOrange
+              : MonoPulseColors.surfaceRaised,
           borderRadius: BorderRadius.circular(MonoPulseRadius.xlarge),
-          onTap: onPressed,
-          child: Icon(
-            icon,
-            color: onPressed == null
-                ? MonoPulseColors.textDisabled
-                : MonoPulseColors.black,
-            size: 24,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(MonoPulseRadius.xlarge),
+            onTap: onPressed,
+            child: Icon(
+              icon,
+              color: isEnabled
+                  ? MonoPulseColors.black
+                  : MonoPulseColors.textDisabled,
+              size: 24,
+            ),
           ),
         ),
       ),
@@ -294,51 +302,68 @@ class MetronomePatternEditor extends StatelessWidget {
     final color = _getModeColor(mode);
     final icon = _getModeIcon(mode);
     final hasBorder = mode != BeatMode.silent;
+    final modeLabel = _getModeLabel(mode);
 
-    return AspectRatio(
-      aspectRatio: 1,
-      child: GestureDetector(
-        onTap: () => onBeatModeChanged(
-          beatIndex,
-          subdivisionIndex,
-          _cycleBeatMode(mode),
-        ),
-        child: Container(
-          margin: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: mode == BeatMode.silent
-                ? Colors.transparent
-                : color.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-            border: hasBorder
-                ? Border.all(color: color, width: 2)
-                : Border.all(
-                    color: MonoPulseColors.borderDefault,
-                    width: 1,
-                    style: BorderStyle.solid,
-                  ),
+    return Semantics(
+      label: 'Beat ${beatIndex + 1}, Subdivision ${subdivisionIndex + 1}, Mode: $modeLabel',
+      button: true,
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: GestureDetector(
+          onTap: () => onBeatModeChanged(
+            beatIndex,
+            subdivisionIndex,
+            _cycleBeatMode(mode),
           ),
-          child: Center(
-            child: icon != null
-                ? Icon(
-                    icon,
-                    color: mode == BeatMode.silent
-                        ? MonoPulseColors.textTertiary
-                        : color,
-                    size: 20,
-                  )
-                : Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
+          child: Container(
+            margin: const EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color: mode == BeatMode.silent
+                  ? Colors.transparent
+                  : color.withValues(alpha: 0.2),
+              shape: BoxShape.circle,
+              border: hasBorder
+                  ? Border.all(color: color, width: 2)
+                  : Border.all(
+                      color: MonoPulseColors.borderDefault,
+                      width: 1,
+                      style: BorderStyle.solid,
                     ),
-                  ),
+            ),
+            child: Center(
+              child: icon != null
+                  ? Icon(
+                      icon,
+                      color: mode == BeatMode.silent
+                          ? MonoPulseColors.textTertiary
+                          : color,
+                      size: 20,
+                    )
+                  : Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+            ),
           ),
         ),
       ),
     );
+  }
+
+  /// Get the label for a BeatMode.
+  String _getModeLabel(BeatMode mode) {
+    switch (mode) {
+      case BeatMode.normal:
+        return 'Normal';
+      case BeatMode.accent:
+        return 'Accent';
+      case BeatMode.silent:
+        return 'Silent';
+    }
   }
 
   /// Get the color for a BeatMode.

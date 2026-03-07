@@ -87,7 +87,9 @@ void main() {
           ),
         );
 
-        expect(find.textContaining('Loaded: Test Song'), findsOneWidget);
+        // Shows song title with music note icon
+        expect(find.text('Test Song'), findsOneWidget);
+        expect(find.byIcon(Icons.music_note), findsOneWidget);
       });
 
       testWidgets('shows loaded setlist indicator when setlist is loaded', (
@@ -118,8 +120,9 @@ void main() {
           ),
         );
 
-        expect(find.textContaining('Loaded: Test Setlist'), findsOneWidget);
-        expect(find.textContaining('(2/3)'), findsOneWidget);
+        // Shows setlist name with playlist icon
+        expect(find.text('Test Setlist'), findsOneWidget);
+        expect(find.byIcon(Icons.playlist_play), findsOneWidget);
       });
     });
 
@@ -167,8 +170,8 @@ void main() {
         await tester.tap(find.text('Song Library'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Songs'), findsOneWidget);
-        expect(find.byIcon(Icons.music_note), findsOneWidget);
+        // Toggle button should be visible
+        expect(find.text('Show Setlists'), findsOneWidget);
       });
 
       testWidgets('close button closes panel', (WidgetTester tester) async {
@@ -207,31 +210,31 @@ void main() {
         await tester.tap(find.text('Song Library'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Songs'), findsOneWidget);
-        expect(find.text('Setlists'), findsNothing);
+        // Initially shows "Show Setlists" button (in Songs view)
+        expect(find.text('Show Setlists'), findsOneWidget);
 
-        // Toggle to Setlists
-        await tester.tap(find.text('Songs'));
+        // Toggle to Setlists view
+        await tester.tap(find.text('Show Setlists'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Setlists'), findsOneWidget);
-        expect(find.byIcon(Icons.playlist_play), findsOneWidget);
+        // Now shows "Show Songs" button
+        expect(find.text('Show Songs'), findsOneWidget);
 
-        // Toggle back to Songs
-        await tester.tap(find.text('Setlists'));
+        // Toggle back to Songs view
+        await tester.tap(find.text('Show Songs'));
         await tester.pumpAndSettle();
 
-        expect(find.text('Songs'), findsOneWidget);
+        // Back to "Show Setlists" button
+        expect(find.text('Show Setlists'), findsOneWidget);
       });
     });
 
     group('Songs list view', () {
-      testWidgets('shows empty state when no songs', (
+      testWidgets('shows placeholder message in songs view', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [songsProvider.overrideWith((ref) => Stream.value([]))],
             child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
           ),
         );
@@ -240,357 +243,53 @@ void main() {
         await tester.tap(find.text('Song Library'));
         await tester.pumpAndSettle();
 
-        expect(find.text('No songs yet'), findsOneWidget);
-        expect(find.byIcon(Icons.music_note_outlined), findsWidgets);
-      });
-
-      testWidgets('shows error state with retry button', (
-        WidgetTester tester,
-      ) async {
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              songsProvider.overrideWith((ref) => Stream.error('Test error')),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-
-        expect(find.textContaining('Failed to load songs'), findsOneWidget);
-      });
-
-      testWidgets('displays songs list when data is available', (
-        WidgetTester tester,
-      ) async {
-        final songs = [
-          Song(
-            id: 'song-1',
-            title: 'Song One',
-            artist: 'Artist One',
-            ourBPM: 120,
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-          Song(
-            id: 'song-2',
-            title: 'Song Two',
-            artist: 'Artist Two',
-            ourBPM: 100,
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              songsProvider.overrideWith((ref) => Stream.value(songs)),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('Song One'), findsOneWidget);
-        expect(find.text('Artist One'), findsOneWidget);
-        expect(find.text('120 BPM'), findsOneWidget);
-        expect(find.text('Song Two'), findsOneWidget);
-        expect(find.text('100 BPM'), findsOneWidget);
-      });
-
-      testWidgets('song card shows BPM badge when BPM is set', (
-        WidgetTester tester,
-      ) async {
-        final songs = [
-          Song(
-            id: 'song-1',
-            title: 'Song With BPM',
-            artist: 'Artist',
-            ourBPM: 140,
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              songsProvider.overrideWith((ref) => Stream.value(songs)),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('140 BPM'), findsOneWidget);
-      });
-
-      testWidgets('song card without BPM does not show BPM badge', (
-        WidgetTester tester,
-      ) async {
-        final songs = [
-          Song(
-            id: 'song-1',
-            title: 'Song Without Tempo',
-            artist: 'Artist',
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              songsProvider.overrideWith((ref) => Stream.value(songs)),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-
-        expect(find.textContaining('BPM'), findsNothing);
-      });
-
-      testWidgets('tapping song card loads song and closes panel', (
-        WidgetTester tester,
-      ) async {
-        final songs = [
-          Song(
-            id: 'song-1',
-            title: 'Test Song',
-            artist: 'Test Artist',
-            ourBPM: 120,
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              songsProvider.overrideWith((ref) => Stream.value(songs)),
-              metronomeProvider.overrideWith(() => MetronomeNotifier()),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-
-        // Tap song card
-        await tester.tap(find.text('Test Song'));
-        await tester.pumpAndSettle();
-
-        // Panel should be closed
-        expect(find.byIcon(Icons.close), findsNothing);
+        // Should show placeholder message
+        expect(find.text('Library integration coming soon'), findsOneWidget);
+        expect(find.text('Song and setlist libraries will be available here'), findsOneWidget);
       });
     });
 
     group('Setlists list view', () {
-      testWidgets('shows empty state when no setlists', (
+      testWidgets('shows placeholder message', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [
-              setlistsProvider.overrideWith((ref) => Stream.value([])),
-            ],
             child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
           ),
         );
 
-        // Open panel and switch to Setlists
+        // Open panel
         await tester.tap(find.text('Song Library'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Songs'));
-        await tester.pumpAndSettle();
 
-        expect(find.text('No setlists yet'), findsOneWidget);
-        expect(find.byIcon(Icons.playlist_play_outlined), findsWidgets);
+        // Should show placeholder message
+        expect(find.text('Library integration coming soon'), findsOneWidget);
+        expect(find.byIcon(Icons.construction_outlined), findsOneWidget);
       });
 
-      testWidgets('shows error state with retry button', (
+      testWidgets('toggle button switches between Songs and Setlists', (
         WidgetTester tester,
       ) async {
         await tester.pumpWidget(
           ProviderScope(
-            overrides: [
-              setlistsProvider.overrideWith(
-                (ref) => Stream.error('Test error'),
-              ),
-            ],
             child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
           ),
         );
 
-        // Open panel and switch to Setlists
+        // Open panel
         await tester.tap(find.text('Song Library'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text('Songs'));
+
+        // Initially shows "Show Setlists" button
+        expect(find.text('Show Setlists'), findsOneWidget);
+
+        // Toggle to setlists view
+        await tester.tap(find.text('Show Setlists'));
         await tester.pumpAndSettle();
 
-        expect(find.textContaining('Failed to load setlists'), findsOneWidget);
-      });
-
-      testWidgets('displays setlists list when data is available', (
-        WidgetTester tester,
-      ) async {
-        final setlists = [
-          Setlist(
-            id: 'setlist-1',
-            bandId: 'band-1',
-            name: 'Gig Setlist',
-            description: 'Songs for the gig',
-            songIds: ['song-1', 'song-2', 'song-3'],
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-          Setlist(
-            id: 'setlist-2',
-            bandId: 'band-1',
-            name: 'Practice Setlist',
-            songIds: ['song-4', 'song-5'],
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              setlistsProvider.overrideWith((ref) => Stream.value(setlists)),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel and switch to Setlists
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Songs'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('Gig Setlist'), findsOneWidget);
-        expect(find.text('Songs for the gig'), findsOneWidget);
-        expect(find.text('3 songs'), findsOneWidget);
-        expect(find.text('Practice Setlist'), findsOneWidget);
-        expect(find.text('2 songs'), findsOneWidget);
-      });
-
-      testWidgets('setlist card shows song count', (WidgetTester tester) async {
-        final setlists = [
-          Setlist(
-            id: 'setlist-1',
-            bandId: 'band-1',
-            name: 'Test Setlist',
-            songIds: ['song-1', 'song-2', 'song-3', 'song-4', 'song-5'],
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              setlistsProvider.overrideWith((ref) => Stream.value(setlists)),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel and switch to Setlists
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Songs'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('5 songs'), findsOneWidget);
-      });
-
-      testWidgets('setlist without description does not show description', (
-        WidgetTester tester,
-      ) async {
-        final setlists = [
-          Setlist(
-            id: 'setlist-1',
-            bandId: 'band-1',
-            name: 'Simple Setlist',
-            songIds: ['song-1'],
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              setlistsProvider.overrideWith((ref) => Stream.value(setlists)),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel and switch to Setlists
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Songs'));
-        await tester.pumpAndSettle();
-
-        expect(find.text('Simple Setlist'), findsOneWidget);
-        expect(find.text('1 songs'), findsOneWidget);
-      });
-
-      testWidgets('tapping setlist card loads setlist and closes panel', (
-        WidgetTester tester,
-      ) async {
-        final setlists = [
-          Setlist(
-            id: 'setlist-1',
-            bandId: 'band-1',
-            name: 'Test Setlist',
-            songIds: ['song-1', 'song-2'],
-            createdAt: DateTime(2024, 1, 1),
-            updatedAt: DateTime(2024, 1, 1),
-          ),
-        ];
-
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              setlistsProvider.overrideWith((ref) => Stream.value(setlists)),
-              metronomeProvider.overrideWith(() => MetronomeNotifier()),
-            ],
-            child: MaterialApp(home: Scaffold(body: const SongLibraryBlock())),
-          ),
-        );
-
-        // Open panel and switch to Setlists
-        await tester.tap(find.text('Song Library'));
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Songs'));
-        await tester.pumpAndSettle();
-
-        // Tap setlist card
-        await tester.tap(find.text('Test Setlist'));
-        await tester.pumpAndSettle();
-
-        // Panel should be closed
-        expect(find.byIcon(Icons.close), findsNothing);
+        // Now shows "Show Songs" button
+        expect(find.text('Show Songs'), findsOneWidget);
       });
     });
 

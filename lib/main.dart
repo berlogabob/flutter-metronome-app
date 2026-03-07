@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'firebase_options.dart';
 import 'router/app_router.dart';
+import 'services/audio/audio_engine_export.dart';
 
+/// Application entry point.
+///
+/// Performance optimization: Audio engine is pre-initialized at startup
+/// to ensure zero-latency playback on first beat.
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Note: .env file is not bundled with APK/IPA
-  // Firebase API key is loaded from fallback in firebase_options.dart
-  // For production, use proper Firebase configuration
-  
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  // Pre-initialize audio engine BEFORE app starts
+  // This ensures all samples are pre-generated and cached
+  // so the first beat plays instantly (zero synthesis latency)
+  final audioEngine = AudioEngine();
+  await audioEngine.initialize();
+
   runApp(const ProviderScope(child: MetronomeApp()));
 }
 

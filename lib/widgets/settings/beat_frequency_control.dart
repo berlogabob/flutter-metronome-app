@@ -14,6 +14,8 @@
 ///   onAccentChanged: (freq) => ...,
 /// ),
 /// ```
+library beat_frequency_control;
+
 import 'package:flutter/material.dart';
 import '../../theme/mono_pulse_theme.dart';
 
@@ -114,38 +116,50 @@ class _FrequencySlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 70,
-          child: Text(
-            label,
-            style: MonoPulseTypography.bodyMedium.copyWith(
-              color: MonoPulseColors.textSecondary,
+    return Semantics(
+      label: '$label frequency slider',
+      value: '${value.toInt()} Hz',
+      increasedValue: '${(value + (max - min) / 32).toInt()} Hz',
+      decreasedValue: '${(value - (max - min) / 32).toInt()} Hz',
+      onIncrease: () {
+        onChanged((value + (max - min) / 32).clamp(min, max));
+      },
+      onDecrease: () {
+        onChanged((value - (max - min) / 32).clamp(min, max));
+      },
+      child: Row(
+        children: [
+          SizedBox(
+            width: 70,
+            child: Text(
+              label,
+              style: MonoPulseTypography.bodyMedium.copyWith(
+                color: MonoPulseColors.textSecondary,
+              ),
             ),
           ),
-        ),
-        Expanded(
-          child: Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: 32,
-            activeColor: MonoPulseColors.accentOrange,
-            inactiveColor: MonoPulseColors.borderDefault,
-            label: '${value.toInt()} Hz',
-            onChanged: onChanged,
+          Expanded(
+            child: Slider(
+              value: value,
+              min: min,
+              max: max,
+              divisions: 32,
+              activeColor: MonoPulseColors.accentOrange,
+              inactiveColor: MonoPulseColors.borderDefault,
+              label: '${value.toInt()} Hz',
+              onChanged: onChanged,
+            ),
           ),
-        ),
-        SizedBox(
-          width: 60,
-          child: Text(
-            '${value.toInt()} Hz',
-            style: MonoPulseTypography.labelMedium,
-            textAlign: TextAlign.right,
+          SizedBox(
+            width: 60,
+            child: Text(
+              '${value.toInt()} Hz',
+              style: MonoPulseTypography.labelMedium,
+              textAlign: TextAlign.right,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

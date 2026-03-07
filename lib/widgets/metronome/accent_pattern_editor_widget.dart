@@ -181,72 +181,77 @@ class _AccentToggleButtonState extends State<_AccentToggleButton>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // Beat number
-        Text(
-          '${widget.beatNumber}',
-          style: MonoPulseTypography.labelSmall.copyWith(
-            color: MonoPulseColors.textTertiary,
+    return Semantics(
+      label: 'Beat ${widget.beatNumber}, ${widget.isAccent ? "Accent" : "Regular"}. Tap to toggle.',
+      button: true,
+      selected: widget.isAccent,
+      child: Column(
+        children: [
+          // Beat number
+          Text(
+            '${widget.beatNumber}',
+            style: MonoPulseTypography.labelSmall.copyWith(
+              color: MonoPulseColors.textTertiary,
+            ),
           ),
-        ),
-        const SizedBox(height: MonoPulseSpacing.xs),
-        // Toggle button
-        GestureDetector(
-          onTapDown: (_) {
-            setState(() => _isPressed = true);
-            HapticFeedback.vibrate();
-          },
-          onTapUp: (_) {
-            setState(() => _isPressed = false);
-            HapticFeedback.vibrate();
-            widget.onTap();
-          },
-          onTapCancel: () => setState(() => _isPressed = false),
-          child: AnimatedScale(
-            scale: _isPressed
-                ? 0.95
-                : (_pulseController.isAnimating ? _pulseAnimation.value : 1.0),
-            duration: MonoPulseAnimation.durationShort,
-            curve: MonoPulseAnimation.curveCustom,
-            child: Container(
-              // 48x48px touch zone
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                color: widget.isAccent
-                    ? MonoPulseColors.accentOrange.withValues(alpha: 0.15)
-                    : MonoPulseColors.blackElevated,
-                border: Border.all(
+          const SizedBox(height: MonoPulseSpacing.xs),
+          // Toggle button
+          GestureDetector(
+            onTapDown: (_) {
+              setState(() => _isPressed = true);
+              HapticFeedback.vibrate();
+            },
+            onTapUp: (_) {
+              setState(() => _isPressed = false);
+              HapticFeedback.vibrate();
+              widget.onTap();
+            },
+            onTapCancel: () => setState(() => _isPressed = false),
+            child: AnimatedScale(
+              scale: _isPressed
+                  ? 0.95
+                  : (_pulseController.isAnimating ? _pulseAnimation.value : 1.0),
+              duration: MonoPulseAnimation.durationShort,
+              curve: MonoPulseAnimation.curveCustom,
+              child: Container(
+                // 48x48px touch zone
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: widget.isAccent
+                      ? MonoPulseColors.accentOrange.withValues(alpha: 0.15)
+                      : MonoPulseColors.blackElevated,
+                  border: Border.all(
+                    color: widget.isAccent
+                        ? MonoPulseColors.accentOrange
+                        : MonoPulseColors.borderDefault,
+                    width: 2,
+                  ),
+                  borderRadius: BorderRadius.circular(MonoPulseRadius.large),
+                ),
+                child: Icon(
+                  widget.isAccent ? Icons.star : Icons.circle_outlined,
                   color: widget.isAccent
                       ? MonoPulseColors.accentOrange
-                      : MonoPulseColors.borderDefault,
-                  width: 2,
+                      : MonoPulseColors.textSecondary,
+                  size: 24,
                 ),
-                borderRadius: BorderRadius.circular(MonoPulseRadius.large),
-              ),
-              child: Icon(
-                widget.isAccent ? Icons.star : Icons.circle_outlined,
-                color: widget.isAccent
-                    ? MonoPulseColors.accentOrange
-                    : MonoPulseColors.textSecondary,
-                size: 24,
               ),
             ),
           ),
-        ),
-        const SizedBox(height: MonoPulseSpacing.xs),
-        // Label
-        Text(
-          widget.isAccent ? 'Accent' : 'Regular',
-          style: MonoPulseTypography.labelSmall.copyWith(
-            color: widget.isAccent
-                ? MonoPulseColors.accentOrange
-                : MonoPulseColors.textSecondary,
-            fontWeight: FontWeight.w600,
+          const SizedBox(height: MonoPulseSpacing.xs),
+          // Label
+          Text(
+            widget.isAccent ? 'Accent' : 'Regular',
+            style: MonoPulseTypography.labelSmall.copyWith(
+              color: widget.isAccent
+                  ? MonoPulseColors.accentOrange
+                  : MonoPulseColors.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

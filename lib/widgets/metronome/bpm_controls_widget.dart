@@ -70,36 +70,40 @@ class _BpmControlsWidgetState extends ConsumerState<BpmControlsWidget> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           // Decrement button
-          GestureDetector(
-            onTapDown: (_) {
-              setState(() => _isDecrementPressed = true);
-              HapticFeedback.vibrate();
-            },
-            onTapUp: (_) {
-              setState(() => _isDecrementPressed = false);
-              HapticFeedback.vibrate();
-              _setBpm(_localBpm - 1);
-            },
-            onTapCancel: () => setState(() => _isDecrementPressed = false),
-            child: AnimatedScale(
-              scale: _isDecrementPressed ? 0.95 : 1.0,
-              duration: MonoPulseAnimation.durationShort,
-              curve: MonoPulseAnimation.curveCustom,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: MonoPulseColors.blackElevated,
-                  borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
-                  border: Border.all(
-                    color: MonoPulseColors.borderSubtle,
-                    width: 1,
+          Semantics(
+            label: 'Decrease BPM by 1',
+            button: true,
+            child: GestureDetector(
+              onTapDown: (_) {
+                setState(() => _isDecrementPressed = true);
+                HapticFeedback.vibrate();
+              },
+              onTapUp: (_) {
+                setState(() => _isDecrementPressed = false);
+                HapticFeedback.vibrate();
+                _setBpm(_localBpm - 1);
+              },
+              onTapCancel: () => setState(() => _isDecrementPressed = false),
+              child: AnimatedScale(
+                scale: _isDecrementPressed ? 0.95 : 1.0,
+                duration: MonoPulseAnimation.durationShort,
+                curve: MonoPulseAnimation.curveCustom,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: MonoPulseColors.blackElevated,
+                    borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
+                    border: Border.all(
+                      color: MonoPulseColors.borderSubtle,
+                      width: 1,
+                    ),
                   ),
-                ),
-                child: const Icon(
-                  Icons.remove,
-                  color: MonoPulseColors.textSecondary,
-                  size: 20,
+                  child: const Icon(
+                    Icons.remove,
+                    color: MonoPulseColors.textSecondary,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
@@ -252,36 +256,40 @@ class _BpmControlsWidgetState extends ConsumerState<BpmControlsWidget> {
           const SizedBox(width: MonoPulseSpacing.lg),
 
           // Increment button
-          GestureDetector(
-            onTapDown: (_) {
-              setState(() => _isIncrementPressed = true);
-              HapticFeedback.vibrate();
-            },
-            onTapUp: (_) {
-              setState(() => _isIncrementPressed = false);
-              HapticFeedback.vibrate();
-              _setBpm(_localBpm + 1);
-            },
-            onTapCancel: () => setState(() => _isIncrementPressed = false),
-            child: AnimatedScale(
-              scale: _isIncrementPressed ? 0.95 : 1.0,
-              duration: MonoPulseAnimation.durationShort,
-              curve: MonoPulseAnimation.curveCustom,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: MonoPulseColors.blackElevated,
-                  borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
-                  border: Border.all(
-                    color: MonoPulseColors.borderSubtle,
-                    width: 1,
+          Semantics(
+            label: 'Increase BPM by 1',
+            button: true,
+            child: GestureDetector(
+              onTapDown: (_) {
+                setState(() => _isIncrementPressed = true);
+                HapticFeedback.vibrate();
+              },
+              onTapUp: (_) {
+                setState(() => _isIncrementPressed = false);
+                HapticFeedback.vibrate();
+                _setBpm(_localBpm + 1);
+              },
+              onTapCancel: () => setState(() => _isIncrementPressed = false),
+              child: AnimatedScale(
+                scale: _isIncrementPressed ? 0.95 : 1.0,
+                duration: MonoPulseAnimation.durationShort,
+                curve: MonoPulseAnimation.curveCustom,
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: MonoPulseColors.blackElevated,
+                    borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
+                    border: Border.all(
+                      color: MonoPulseColors.borderSubtle,
+                      width: 1,
+                    ),
                   ),
-                ),
-                child: const Icon(
-                  Icons.add,
-                  color: MonoPulseColors.textSecondary,
-                  size: 20,
+                  child: const Icon(
+                    Icons.add,
+                    color: MonoPulseColors.textSecondary,
+                    size: 20,
+                  ),
                 ),
               ),
             ),

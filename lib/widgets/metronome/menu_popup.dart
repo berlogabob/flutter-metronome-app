@@ -468,41 +468,45 @@ class _MenuItemState extends State<_MenuItem> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _isHovered = true),
-        onExit: (_) => setState(() => _isHovered = false),
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: MonoPulseSpacing.lg,
-            vertical: MonoPulseSpacing.md,
-          ),
-          decoration: BoxDecoration(
-            color: _isHovered
-                ? MonoPulseColors.blackElevated
-                : Colors.transparent,
-          ),
-          child: Row(
-            children: [
-              Icon(
-                widget.icon,
-                size: 20,
-                color: MonoPulseColors.accentOrange, // Orange icons
-              ),
-              const SizedBox(width: MonoPulseSpacing.md),
-              Expanded(
-                child: Text(
-                  widget.label,
-                  style: MonoPulseTypography.bodyMedium.copyWith(
-                    color: MonoPulseColors.textHighEmphasis, // #EDEDED
-                    fontWeight: _isHovered ? FontWeight.w600 : FontWeight.w400,
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+    return Semantics(
+      label: widget.label,
+      button: true,
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: MonoPulseSpacing.lg,
+              vertical: MonoPulseSpacing.md,
+            ),
+            decoration: BoxDecoration(
+              color: _isHovered
+                  ? MonoPulseColors.blackElevated
+                  : Colors.transparent,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  widget.icon,
+                  size: 20,
+                  color: MonoPulseColors.accentOrange, // Orange icons
                 ),
-              ),
-            ],
+                const SizedBox(width: MonoPulseSpacing.md),
+                Expanded(
+                  child: Text(
+                    widget.label,
+                    style: MonoPulseTypography.bodyMedium.copyWith(
+                      color: MonoPulseColors.textHighEmphasis, // #EDEDED
+                      fontWeight: _isHovered ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

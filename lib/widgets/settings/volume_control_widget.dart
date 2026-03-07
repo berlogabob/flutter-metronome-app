@@ -6,6 +6,8 @@
 /// ```dart
 /// const VolumeControlWidget(),
 /// ```
+library volume_control_widget;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,18 +50,30 @@ class VolumeControlWidget extends ConsumerWidget {
                       child: Icon(Icons.volume_down, color: MonoPulseColors.textSecondary),
                     ),
                     Expanded(
-                      child: Slider(
-                        value: config.volume,
-                        min: 0.0,
-                        max: 1.0,
-                        divisions: 20,
-                        activeColor: MonoPulseColors.accentOrange,
-                        inactiveColor: MonoPulseColors.borderDefault,
-                        label: '${(config.volume * 100).toInt()}%',
-                        onChanged: (value) {
-                          HapticFeedback.lightImpact();
-                          notifier.setVolume(value);
+                      child: Semantics(
+                        label: 'Volume slider',
+                        value: '${(config.volume * 100).toInt()} percent',
+                        increasedValue: '${((config.volume + 0.05) * 100).clamp(0, 100).toInt()} percent',
+                        decreasedValue: '${((config.volume - 0.05) * 100).clamp(0, 100).toInt()} percent',
+                        onIncrease: () {
+                          notifier.setVolume((config.volume + 0.05).clamp(0.0, 1.0));
                         },
+                        onDecrease: () {
+                          notifier.setVolume((config.volume - 0.05).clamp(0.0, 1.0));
+                        },
+                        child: Slider(
+                          value: config.volume,
+                          min: 0.0,
+                          max: 1.0,
+                          divisions: 20,
+                          activeColor: MonoPulseColors.accentOrange,
+                          inactiveColor: MonoPulseColors.borderDefault,
+                          label: '${(config.volume * 100).toInt()}%',
+                          onChanged: (value) {
+                            HapticFeedback.lightImpact();
+                            notifier.setVolume(value);
+                          },
+                        ),
                       ),
                     ),
                     ExcludeSemantics(

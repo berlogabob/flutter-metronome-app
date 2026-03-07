@@ -2,8 +2,8 @@
 
 Autonomous AI agents that drive development, testing, and release of the Flutter metronome app.
 
-**Version**: 2.0.0 (2026-03-06)  
-**Total Agents**: 18  
+**Version**: 2.1.0 (2026-03-06)
+**Total Agents**: 22
 **Status**: Active
 
 ---
@@ -64,10 +64,30 @@ USER (Final Authority)
 │   ├── Testing Agent
 │   └── Security Agent (PII enforcement)
 │
-├── mr-android (Android Platform — MERGED with mr-android-debug)
+├── mr-android (Android Platform)
 │   ├── Builds & deployment
 │   ├── Debugging & crash analysis
 │   └── Performance profiling
+│
+├── mr-ios (iOS Platform — NEW)
+│   ├── Builds & deployment
+│   ├── Debugging & crash analysis
+│   └── App Store compliance
+│
+├── mr-web (Web Platform — NEW)
+│   ├── Browser compatibility
+│   ├── PWA features
+│   └── Web performance
+│
+├── mr-firebase (Backend/Firebase — NEW)
+│   ├── Firestore & Auth
+│   ├── Cloud Functions
+│   └── Security rules
+│
+├── mr-devops (CI/CD & Automation — NEW)
+│   ├── GitHub Actions
+│   ├── Build automation
+│   └── Deployment pipelines
 │
 ├── mr-release (Release Orchestration)
 │   ├── Versioning
@@ -106,11 +126,18 @@ USER (Final Authority)
 | **widget-guardian** | Widget architecture, performance | ✅ Active | No changes |
 | **app-audit-agents** | Comprehensive app auditing | ✅ Active | No changes |
 
-### 📱 Platform & Release
-| Agent | Purpose | Status | Changes v2.0.0 |
+### 📱 Platform Specialists
+| Agent | Purpose | Status | Changes v2.1.0 |
 |-------|---------|--------|----------------|
-| **mr-android** | Android builds, debugging, crashes | ✅ Active | Merged with mr-android-debug |
-| ~~mr-android-debug~~ | ~~Real-time debugging~~ | ❌ REMOVED | Merged into mr-android |
+| **mr-android** | Android builds, debugging, crashes | ✅ Active | No changes |
+| **mr-ios** | iOS builds, debugging, App Store | ✅ NEW | Created for iOS platform |
+| **mr-web** | Web platform, PWA, browser compatibility | ✅ NEW | Created for web platform |
+| **mr-firebase** | Backend, Firestore, Auth, Functions | ✅ NEW | Created for Firebase backend |
+| **mr-devops** | CI/CD, automation, deployment pipelines | ✅ NEW | Created for DevOps automation |
+
+### 🚀 Release
+| Agent | Purpose | Status | Changes v2.1.0 |
+|-------|---------|--------|----------------|
 | **mr-release** | Release orchestration, versioning | ✅ Active | No changes |
 
 ### 🛡️ Quality Assurance
@@ -153,8 +180,64 @@ USER (Final Authority)
 - mr-planner: DECOMPOSES tasks
 
 ### 6. ✅ Created mr-coder
-**Problem**: Multiple agents referenced non-existent `mr-coder`.  
+**Problem**: Multiple agents referenced non-existent `mr-coder`.
 **Fix**: Created `mr-coder` agent for implementation.
+
+---
+
+## 🆕 New Platform Agents (v2.1.0)
+
+### mr-ios
+**Purpose**: iOS platform specialist.
+
+**Responsibilities**:
+- iOS builds, code signing, IPA artifacts
+- Xcode debugging, Instruments profiling
+- App Store Connect deployment
+- Audio latency optimization (<50ms target)
+
+**Collaboration**:
+- Receives from: mr-planner (iOS tasks)
+- Sends to: mr-release (IPA builds), mr-logger (Crashlytics)
+
+### mr-web
+**Purpose**: Web platform specialist.
+
+**Responsibilities**:
+- Browser compatibility (Chrome, Safari, Firefox, Edge)
+- PWA features, offline support
+- Web performance optimization (bundle size, LCP)
+- Firebase Hosting deployment
+
+**Collaboration**:
+- Receives from: mr-planner (web tasks)
+- Sends to: mr-firebase (Hosting), mr-devops (web CI/CD)
+
+### mr-firebase
+**Purpose**: Backend/Firebase specialist.
+
+**Responsibilities**:
+- Firestore data modeling, security rules
+- Firebase Authentication, Cloud Functions
+- Analytics, FCM push notifications
+- Cost optimization, query indexing
+
+**Collaboration**:
+- Receives from: mr-architect (data models)
+- Sends to: mr-web (Hosting), mr-devops (Firebase CI/CD)
+
+### mr-devops
+**Purpose**: CI/CD and automation specialist.
+
+**Responsibilities**:
+- GitHub Actions workflow design
+- Build automation (Flutter, Android, iOS, Web)
+- Test automation, coverage enforcement
+- Deployment pipelines, rollback automation
+
+**Collaboration**:
+- Receives from: mr-planner (automation tasks)
+- Sends to: mr-release (deployment orchestration)
 
 ---
 
@@ -227,16 +310,31 @@ USER (Final Authority)
 
 | Category | Agents | New | Removed | Active |
 |----------|--------|-----|---------|--------|
-| Coordination | 5 | 1 (mr-coder) | 0 | 5 |
+| Coordination | 5 | 0 | 0 | 5 |
 | Development | 4 | 0 | 0 | 4 |
 | UI/UX | 3 | 0 | 0 | 3 |
-| Platform/Release | 3 | 0 | 1 (mr-android-debug) | 3 |
-| Quality Assurance | 3 | 0 | 0 | 3 |
-| **TOTAL** | **18** | **1** | **1** | **18** |
+| Platform Specialists | 5 | 4 (mr-ios, mr-web, mr-firebase, mr-devops) | 0 | 5 |
+| Release | 1 | 0 | 0 | 1 |
+| Quality Assurance | 4 | 0 | 0 | 4 |
+| **TOTAL** | **22** | **4** | **0** | **22** |
 
 ---
 
 ## 📖 Changelog
+
+### v2.1.0 (2026-03-06) — Platform Specialist Agents
+
+**Created Agents**:
+- ✅ mr-ios — iOS platform specialist (builds, debugging, App Store)
+- ✅ mr-web — Web platform specialist (browser compatibility, PWA, performance)
+- ✅ mr-firebase — Backend/Firebase specialist (Firestore, Auth, Functions, security)
+- ✅ mr-devops — CI/CD and automation specialist (GitHub Actions, build/deployment pipelines)
+
+**Documentation**:
+- ✅ Updated hierarchy diagram with 4 new platform agents
+- ✅ Added Platform Specialists category
+- ✅ Defined collaboration protocols for each agent
+- ✅ Updated agent count: 18 → 22
 
 ### v2.0.0 (2026-03-06) — Critical Collision Fixes
 
@@ -263,6 +361,6 @@ USER (Final Authority)
 
 ---
 
-> Built with ❤️ for musicians and cover bands  
-> Repository: [flutter-flowgroove-app-metronome](https://github.com/berlogabob/flutter-flowgroove-app-metronome)  
-> **Last Updated**: 2026-03-06
+> Built with ❤️ for musicians and cover bands
+> Repository: [flutter-flowgroove-app-metronome](https://github.com/berlogabob/flutter-flowgroove-app-metronome)
+> **Last Updated**: 2026-03-06 (v2.1.0)

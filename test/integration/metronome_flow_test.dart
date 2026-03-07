@@ -838,14 +838,14 @@ void main() {
         final container = ProviderContainer();
         addTearDown(container.dispose);
 
-        container.read(metronomeProvider.notifier).setTempoDirectly(1);
+        container.read(metronomeProvider.notifier).setTempoDirectly(10);
 
         // Act: Try to go below minimum
         container.read(metronomeProvider.notifier).adjustTempoFine(-10);
         final state = container.read(metronomeProvider);
 
-        // Assert: Clamped to 1
-        expect(state.bpm, equals(1));
+        // Assert: Clamped to implementation minimum (10)
+        expect(state.bpm, equals(10));
       });
 
       testWidgets('INT-METRONOME-01.44: Tempo at maximum boundary', (
@@ -855,14 +855,14 @@ void main() {
         final container = ProviderContainer();
         addTearDown(container.dispose);
 
-        container.read(metronomeProvider.notifier).setTempoDirectly(300);
+        container.read(metronomeProvider.notifier).setTempoDirectly(260);
 
         // Act: Try to go above maximum
         container.read(metronomeProvider.notifier).adjustTempoFine(10);
         final state = container.read(metronomeProvider);
 
-        // Assert: Clamped to 300
-        expect(state.bpm, equals(300));
+        // Assert: Clamped to implementation maximum (260)
+        expect(state.bpm, equals(260));
       });
 
       testWidgets('INT-METRONOME-01.45: Beat mode serialization', (

@@ -28,10 +28,10 @@ void main() {
 
         expect(json['accentBeats'], 4);
         expect(json['regularBeats'], 2);
-        expect(json['beatModes'], isA<List>());
-        expect(json['beatModes'].length, 2);
-        expect(json['beatModes'][0][0], 'accent');
-        expect(json['beatModes'][1][0], 'silent');
+        expect(json['beatModes'], isA<Map>());
+        expect(json['beatModes'].length, 4);
+        expect(json['beatModes']['0-0'], 'accent');
+        expect(json['beatModes']['1-0'], 'silent');
       });
 
       test('Song fromJson parses metronome settings', () {
@@ -134,7 +134,7 @@ void main() {
 
         expect(newJson['accentBeats'], 4);
         expect(newJson['regularBeats'], 1);
-        expect(newJson['beatModes'], isA<List>());
+        expect(newJson['beatModes'], isA<Map>());
         expect(newJson['beatModes'].length, 0);
       });
     });

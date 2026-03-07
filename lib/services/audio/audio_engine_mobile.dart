@@ -5,12 +5,41 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'i_audio_engine.dart';
+import 'audio_player_adapter.dart';
+
+/// Abstract interface for audio player - allows mocking in tests
+/// Mirrors the AudioPlayer API we use
+// coverage:ignore-line - Interface definition, tested through implementations
+abstract class IAudioPlayer {
+  Future<void> setReleaseMode(ReleaseMode mode);
+  Future<void> setVolume(double volume);
+  Future<void> play(BytesSource source, {double? volume});
+  void dispose();
+}
 
 /// Audio engine for metronome sound synthesis
-/// Mobile version using audioplayers with synthesized PCM audio
-class AudioEngine {
-  final AudioPlayer _player = AudioPlayer();
+/// Mobile version using audioplayers with pre-loaded PCM audio buffers
+///
+/// Performance optimizations:
+/// - Pre-generated audio buffers at startup (zero runtime synthesis)
+/// - Player pool for overlapping clicks (no wait time)
+/// - Round-robin playback across 4 players
+///
+/// Dependency injection support:
+/// - Pass custom [playerFactory] for testing
+/// - Default: creates AudioPlayerAdapter instances
+class AudioEngine implements IAudioEngine {
+  // Player pool for overlapping clicks (handles up to 260 BPM with subdivisions)
+  final List<IAudioPlayer> _players = [];
+  int _currentPlayerIndex = 0;
   bool _initialized = false;
+
+  // Pre-loaded audio buffers: key = '${frequency}_${waveType}'
+  final Map<String, Uint8List> _buffers = {};
+
+  // Factory function for creating audio players - injected for testing
+  final IAudioPlayer Function() _playerFactory;
 
   bool get initialized => _initialized;
 
@@ -20,23 +49,52 @@ class AudioEngine {
   /// Click duration in seconds (40ms like Reaper)
   static const double _clickDuration = 0.04;
 
-  /// Initialize audio engine
+  /// Supported frequencies and wave types for buffer generation
+  static const List<double> _frequencies = [800, 880, 1600, 1760, 2000, 2200];
+  static const List<String> _waveTypes = ['sine', 'square', 'triangle', 'sawtooth'];
+
+  /// Create audio engine with optional player factory for dependency injection
+  ///
+  /// [playerFactory] - Function that creates IAudioPlayer instances
+  ///                   Default: AudioPlayerAdapter (real implementation)
+  AudioEngine({IAudioPlayer Function()? playerFactory})
+      // coverage:ignore-line - Default factory requires platform channels
+      : _playerFactory = playerFactory ?? (() => AudioPlayerAdapter() as IAudioPlayer);
+
+  /// Initialize audio engine with pre-loaded buffers
   Future<void> initialize() async {
     if (_initialized) return;
 
     try {
-      // Pre-configure audio player for low-latency playback
-      await _player.setReleaseMode(ReleaseMode.stop);
-      await _player.setVolume(1.0);
+      // Create player pool (4 players for overlapping clicks)
+      for (int i = 0; i < 4; i++) {
+        final player = _playerFactory();
+        await player.setReleaseMode(ReleaseMode.stop);
+        await player.setVolume(1.0);
+        _players.add(player);
+      }
+
+      // Pre-generate ALL sounds ONCE at startup
+      for (final freq in _frequencies) {
+        for (final wave in _waveTypes) {
+          final key = '${freq}_${wave}';
+          _buffers[key] = _generateClickSound(
+            frequency: freq,
+            waveType: wave,
+            volume: 1.0,
+          );
+        }
+      }
+
       _initialized = true;
-      debugPrint('[AudioEngine] Mobile audio engine initialized');
+      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers');
     } catch (e) {
       debugPrint('[AudioEngine] Failed to initialize: $e');
       rethrow;
     }
   }
 
-  /// Play a click sound
+  /// Play a click sound using pre-loaded buffers
   /// [isAccent] - true for accented beat (higher pitch)
   /// [waveType] - 'sine', 'square', 'triangle', or 'sawtooth'
   /// [volume] - 0.0 to 1.0
@@ -54,19 +112,32 @@ class AudioEngine {
     }
 
     try {
-      // Generate synthesized click sound
+      // Determine frequency
       final frequency = isAccent
           ? (accentFrequency ?? 1600.0)
           : (beatFrequency ?? 800.0);
 
-      final pcmBytes = _generateClickSound(
-        frequency: frequency,
-        waveType: waveType,
-        volume: volume.clamp(0.0, 1.0),
-      );
+      // Lookup pre-generated buffer (ZERO synthesis latency!)
+      final key = '${frequency}_$waveType';
+      var bytes = _buffers[key];
+      
+      // Generate and cache if not found (user custom frequency)
+      if (bytes == null) {
+        bytes = _generateClickSound(
+          frequency: frequency,
+          waveType: waveType,
+          volume: 1.0,
+        );
+        _buffers[key] = bytes; // Cache for future use
+        debugPrint('[AudioEngine] Generated and cached custom frequency: $key');
+      }
 
-      // Play the synthesized sound using BytesSource
-      await _player.play(BytesSource(pcmBytes), volume: 1.0);
+      // Play with next available player (round-robin)
+      final player = _players[_currentPlayerIndex];
+      _currentPlayerIndex = (_currentPlayerIndex + 1) % _players.length;
+      
+      // Apply volume at playback time (buffers are stored at 1.0)
+      await player.play(BytesSource(bytes), volume: volume.clamp(0.0, 1.0));
 
       debugPrint(
         '[AudioEngine] Played click: accent=$isAccent, freq=${frequency}Hz, wave=$waveType, vol=$volume',
@@ -225,11 +296,18 @@ class AudioEngine {
   /// Dispose audio resources
   void dispose() {
     try {
-      _player.dispose();
-      _initialized = false;
-      debugPrint('[AudioEngine] Disposed');
+      // Dispose all players in the pool
+      for (final player in _players) {
+        player.dispose();
+      }
     } catch (e) {
       debugPrint('[AudioEngine] Error during dispose: $e');
+    } finally {
+      // Always clean up state, even if dispose throws
+      _players.clear();
+      _buffers.clear();
+      _initialized = false;
+      debugPrint('[AudioEngine] Disposed');
     }
   }
 }

@@ -2,6 +2,7 @@
 // Generated mock for AudioEngine
 
 import 'package:flutter/foundation.dart';
+import 'package:metronome_app/services/audio/i_audio_engine.dart';
 
 /// Mock AudioPlayer for testing
 class MockAudioPlayer {
@@ -31,16 +32,24 @@ class MockAudioPlayer {
 }
 
 /// Mock AudioEngine for testing
-class MockAudioEngine {
+/// Implements the same interface as AudioEngine but without platform channels
+class MockAudioEngine implements IAudioEngine {
   bool _initialized = false;
+  
+  // Track calls for verification
+  int playClickCallCount = 0;
+  List<Map<String, dynamic>> playClickHistory = [];
 
+  @override
   bool get initialized => _initialized;
 
+  @override
   Future<void> initialize() async {
     _initialized = true;
     debugPrint('[MockAudioEngine] Initialized');
   }
 
+  @override
   Future<void> playClick({
     required bool isAccent,
     required String waveType,
@@ -48,17 +57,36 @@ class MockAudioEngine {
     double? accentFrequency,
     double? beatFrequency,
   }) async {
+    playClickCallCount++;
+    playClickHistory.add({
+      'isAccent': isAccent,
+      'waveType': waveType,
+      'volume': volume,
+      'accentFrequency': accentFrequency,
+      'beatFrequency': beatFrequency,
+    });
     debugPrint(
       '[MockAudioEngine] Play click: accent=$isAccent, wave=$waveType, vol=$volume',
     );
   }
 
+  @override
   Future<void> playTest() async {
     debugPrint('[MockAudioEngine] Playing test sound');
   }
 
+  @override
   void dispose() {
     _initialized = false;
+    playClickCallCount = 0;
+    playClickHistory.clear();
     debugPrint('[MockAudioEngine] Disposed');
+  }
+
+  /// Reset mock state for reuse
+  void reset() {
+    _initialized = false;
+    playClickCallCount = 0;
+    playClickHistory.clear();
   }
 }

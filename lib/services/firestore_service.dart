@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
+import '../firebase_options.dart';
 import '../models/api_error.dart';
 import '../models/song.dart';
 import '../models/band.dart';
@@ -17,13 +19,45 @@ const _firestoreTimeout = Duration(seconds: 10);
 /// as well as band sharing and song sharing functionality.
 ///
 /// All methods throw [ApiError] exceptions for proper error handling.
+///
+/// Performance optimization: Firebase is initialized lazily on first use.
 class FirestoreService {
+  static bool _firebaseInitialized = false;
+  static Completer<void>? _initializationCompleter;
+  
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  /// Ensures Firebase is initialized before any Firestore operations.
+  /// This is called lazily to improve startup time.
+  Future<void> _ensureFirebaseInitialized() async {
+    if (_firebaseInitialized) return;
+    
+    // Use a Completer to ensure only one initialization happens
+    if (_initializationCompleter == null) {
+      _initializationCompleter = Completer<void>();
+      try {
+        await Firebase.initializeApp(
+          options: DefaultFirebaseOptions.currentPlatform,
+        );
+        _firebaseInitialized = true;
+        _initializationCompleter!.complete();
+        debugPrint('[FirestoreService] Firebase initialized lazily');
+      } catch (e) {
+        _initializationCompleter!.completeError(e);
+        debugPrint('[FirestoreService] Failed to initialize Firebase: $e');
+        rethrow;
+      }
+    } else {
+      // Wait for the ongoing initialization to complete
+      await _initializationCompleter!.future;
+    }
+  }
+
   /// Helper method to check if user is authenticated.
   /// Throws [ApiError] if not authenticated.
-  void _requireAuth() {
+  Future<void> _requireAuth() async {
+    await _ensureFirebaseInitialized();
     if (_auth.currentUser == null) {
       throw ApiError.auth(
         message: 'Authentication required. Please sign in to continue.',
@@ -49,6 +83,7 @@ class FirestoreService {
 
   /// Saves a song to the user's personal collection.
   Future<void> saveSong(Song song, {String? uid}) async {
+    await _ensureFirebaseInitialized();
     try {
       final userId = uid ?? _currentUserId;
       await _firestore
@@ -84,6 +119,7 @@ class FirestoreService {
 
   /// Deletes a song from the user's personal collection.
   Future<void> deleteSong(String songId, {String? uid}) async {
+    await _ensureFirebaseInitialized();
     try {
       final userId = uid ?? _currentUserId;
       await _firestore
@@ -124,6 +160,7 @@ class FirestoreService {
   /// This includes metronome settings: [Song.accentBeats], [Song.regularBeats],
   /// and [Song.beatModes].
   Future<void> updateSong(Song song, {String? uid}) async {
+    await _ensureFirebaseInitialized();
     try {
       final userId = uid ?? _currentUserId;
       await _firestore

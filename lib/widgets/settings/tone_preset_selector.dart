@@ -7,8 +7,9 @@
 /// ```dart
 /// const TonePresetSelector(),
 /// ```
+library tone_preset_selector;
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/mono_pulse_theme.dart';
 import '../../providers/global_tone_config_provider.dart';

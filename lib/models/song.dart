@@ -345,6 +345,9 @@ List<List<BeatMode>> _beatModesFromJson(dynamic value) {
 
   // Support map format: {"0-0": "accent", "0-1": "normal", ...}
   if (value is Map) {
+    // Return empty list if map is empty
+    if (value.isEmpty) return [];
+    
     final result = <List<BeatMode>>[];
 
     // Find max dimensions

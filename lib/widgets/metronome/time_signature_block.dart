@@ -426,40 +426,56 @@ class _BeatCircleWithMode extends StatelessWidget {
     // Smaller circles on small screens: 16px instead of 20px
     final circleSize = isSmallScreen ? 16.0 : 20.0;
     final containerSize = isSmallScreen ? 40.0 : 48.0;
+    final modeLabel = _getModeLabel();
 
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: containerSize,
-        height: containerSize,
-        child: Center(
-          child: AnimatedContainer(
-            duration: MonoPulseAnimation.durationShort,
-            curve: MonoPulseAnimation.curveCustom,
-            width: circleSize,
-            height: circleSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _getColorForMode(),
-              border: Border.all(color: _getBorderColorForMode(), width: 1.5),
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: _getColorForMode().withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ]
-                  : [],
-            ),
-            child: Transform.scale(
-              scale: isActive ? 1.08 : 1.0,
-              child: _buildModeIndicator(),
+    return Semantics(
+      label: 'Beat $isMainBeat, Mode: $modeLabel${isActive ? ", active" : ""}',
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          width: containerSize,
+          height: containerSize,
+          child: Center(
+            child: AnimatedContainer(
+              duration: MonoPulseAnimation.durationShort,
+              curve: MonoPulseAnimation.curveCustom,
+              width: circleSize,
+              height: circleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _getColorForMode(),
+                border: Border.all(color: _getBorderColorForMode(), width: 1.5),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: _getColorForMode().withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Transform.scale(
+                scale: isActive ? 1.08 : 1.0,
+                child: _buildModeIndicator(),
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  String _getModeLabel() {
+    switch (mode) {
+      case BeatMode.normal:
+        return 'Normal';
+      case BeatMode.accent:
+        return 'Accent';
+      case BeatMode.silent:
+        return 'Silent';
+    }
   }
 
   Color _getColorForMode() {
@@ -537,40 +553,60 @@ class _SubdivisionCircleWithMode extends StatelessWidget {
     // Smaller circles on small screens: 16px instead of 20px
     final circleSize = isSmallScreen ? 16.0 : 20.0;
     final containerSize = isSmallScreen ? 40.0 : 48.0;
+    final modeLabel = _getModeLabel();
+    final isEnabled = onTap != null;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: containerSize,
-        height: containerSize,
-        child: Center(
-          child: AnimatedContainer(
-            duration: MonoPulseAnimation.durationShort,
-            curve: MonoPulseAnimation.curveCustom,
-            width: circleSize,
-            height: circleSize,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _getColorForMode(),
-              border: Border.all(color: _getBorderColorForMode(), width: 1.5),
-              boxShadow: isActive
-                  ? [
-                      BoxShadow(
-                        color: _getColorForMode().withValues(alpha: 0.3),
-                        blurRadius: 8,
-                        spreadRadius: 2,
-                      ),
-                    ]
-                  : [],
-            ),
-            child: Transform.scale(
-              scale: isActive ? 1.08 : 1.0,
-              child: _buildModeIndicator(),
+    return Semantics(
+      label: isEnabled
+          ? 'Subdivision ${subdivisionIndex + 1}, Mode: $modeLabel${isActive ? ", active" : ""}'
+          : 'Subdivision ${subdivisionIndex + 1}, tap beat to enable',
+      button: true,
+      enabled: isEnabled,
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          width: containerSize,
+          height: containerSize,
+          child: Center(
+            child: AnimatedContainer(
+              duration: MonoPulseAnimation.durationShort,
+              curve: MonoPulseAnimation.curveCustom,
+              width: circleSize,
+              height: circleSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: _getColorForMode(),
+                border: Border.all(color: _getBorderColorForMode(), width: 1.5),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(
+                          color: _getColorForMode().withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Transform.scale(
+                scale: isActive ? 1.08 : 1.0,
+                child: _buildModeIndicator(),
+              ),
             ),
           ),
         ),
       ),
     );
+  }
+
+  String _getModeLabel() {
+    switch (mode) {
+      case BeatMode.normal:
+        return 'Normal';
+      case BeatMode.accent:
+        return 'Accent';
+      case BeatMode.silent:
+        return 'Silent';
+    }
   }
 
   Color _getColorForMode() {
@@ -650,69 +686,77 @@ class _BeatButton extends StatelessWidget {
     final iconSize = isSmallScreen ? 16.0 : 20.0;
     final badgeSize = isSmallScreen ? 14.0 : 18.0;
     final badgeFontSize = isSmallScreen ? 8.0 : 10.0;
+    final isEnabled = onTap != null;
 
-    return GestureDetector(
-      onTap: onTap,
-      child: SizedBox(
-        width: buttonSize,
-        height: buttonSize,
-        child: Center(
-          child: AnimatedContainer(
-            duration: MonoPulseAnimation.durationShort,
-            curve: MonoPulseAnimation.curveCustom,
-            width: buttonSize - 8,
-            height: buttonSize - 8,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: onTap != null
-                  ? MonoPulseColors.blackElevated
-                  : MonoPulseColors.borderSubtle,
-              border: Border.all(
-                color: onTap != null
-                    ? MonoPulseColors.borderDefault
+    return Semantics(
+      label: icon == Icons.add
+          ? (isEnabled ? 'Add beat' : 'Maximum beats reached')
+          : (isEnabled ? 'Remove beat' : 'Minimum beats reached'),
+      button: true,
+      enabled: isEnabled,
+      child: GestureDetector(
+        onTap: onTap,
+        child: SizedBox(
+          width: buttonSize,
+          height: buttonSize,
+          child: Center(
+            child: AnimatedContainer(
+              duration: MonoPulseAnimation.durationShort,
+              curve: MonoPulseAnimation.curveCustom,
+              width: buttonSize - 8,
+              height: buttonSize - 8,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isEnabled
+                    ? MonoPulseColors.blackElevated
                     : MonoPulseColors.borderSubtle,
-                width: 1.5,
-              ),
-            ),
-            child: Stack(
-              children: [
-                Center(
-                  child: Icon(
-                    icon,
-                    size: iconSize,
-                    color: onTap != null
-                        ? MonoPulseColors.textSecondary
-                        : MonoPulseColors.textTertiary,
-                  ),
+                border: Border.all(
+                  color: isEnabled
+                      ? MonoPulseColors.borderDefault
+                      : MonoPulseColors.borderSubtle,
+                  width: 1.5,
                 ),
-                if (showBadge)
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      width: badgeSize,
-                      height: badgeSize,
-                      decoration: BoxDecoration(
-                        color: MonoPulseColors.accentOrange,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: MonoPulseColors.black,
-                          width: 1,
-                        ),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$badgeCount',
-                          style: TextStyle(
-                            fontSize: badgeFontSize,
-                            fontWeight: FontWeight.bold,
+              ),
+              child: Stack(
+                children: [
+                  Center(
+                    child: Icon(
+                      icon,
+                      size: iconSize,
+                      color: isEnabled
+                          ? MonoPulseColors.textSecondary
+                          : MonoPulseColors.textTertiary,
+                    ),
+                  ),
+                  if (showBadge)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        width: badgeSize,
+                        height: badgeSize,
+                        decoration: BoxDecoration(
+                          color: MonoPulseColors.accentOrange,
+                          shape: BoxShape.circle,
+                          border: Border.all(
                             color: MonoPulseColors.black,
+                            width: 1,
+                          ),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$badgeCount',
+                            style: TextStyle(
+                              fontSize: badgeFontSize,
+                              fontWeight: FontWeight.bold,
+                              color: MonoPulseColors.black,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

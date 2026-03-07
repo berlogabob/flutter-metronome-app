@@ -9,6 +9,8 @@
 /// ```dart
 /// const ToneMatrixWidget(),
 /// ```
+library tone_matrix_widget;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/mono_pulse_theme.dart';

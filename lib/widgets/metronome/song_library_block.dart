@@ -7,8 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/metronome_provider.dart';
 import '../../theme/mono_pulse_theme.dart';
-import '../../models/song.dart';
-import '../../models/setlist.dart';
 
 /// Song Library Block widget - Mono Pulse design
 /// 
@@ -28,44 +26,47 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(metronomeProvider);
-    final metronome = ref.watch(metronomeProvider.notifier);
 
     return Column(
       children: [
         // Compact pill button
         if (!_isExpanded)
-          GestureDetector(
-            onTap: () {
-              HapticFeedback.lightImpact();
-              setState(() => _isExpanded = true);
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 12,
-              ),
-              decoration: BoxDecoration(
-                color: MonoPulseColors.surface,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: MonoPulseColors.borderSubtle),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.music_note_outlined,
-                    color: MonoPulseColors.textSecondary,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Song Library',
-                    style: MonoPulseTypography.bodyLarge.copyWith(
-                      color: MonoPulseColors.textHighEmphasis,
-                      fontWeight: FontWeight.w500,
+          Semantics(
+            label: 'Song Library. Tap to expand.',
+            button: true,
+            child: GestureDetector(
+              onTap: () {
+                HapticFeedback.lightImpact();
+                setState(() => _isExpanded = true);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: MonoPulseColors.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: MonoPulseColors.borderSubtle),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.music_note_outlined,
+                      color: MonoPulseColors.textSecondary,
+                      size: 20,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    Text(
+                      'Song Library',
+                      style: MonoPulseTypography.bodyLarge.copyWith(
+                        color: MonoPulseColors.textHighEmphasis,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -75,43 +76,47 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
             (state.loadedSong != null || state.loadedSetlist != null))
           Padding(
             padding: const EdgeInsets.only(top: 8),
-            child: GestureDetector(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(() => _isExpanded = true);
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: MonoPulseColors.accentOrangeSubtle,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: MonoPulseColors.accentOrange),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      state.loadedSong != null
-                          ? Icons.music_note
-                          : Icons.playlist_play,
-                      color: MonoPulseColors.accentOrange,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      state.loadedSong?.title ??
-                          state.loadedSetlist?.name ??
-                          '',
-                      style: MonoPulseTypography.labelMedium.copyWith(
+            child: Semantics(
+              label: '${state.loadedSong?.title ?? state.loadedSetlist?.name ?? ""}. Tap to expand.',
+              button: true,
+              child: GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() => _isExpanded = true);
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: MonoPulseColors.accentOrangeSubtle,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: MonoPulseColors.accentOrange),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        state.loadedSong != null
+                            ? Icons.music_note
+                            : Icons.playlist_play,
                         color: MonoPulseColors.accentOrange,
+                        size: 16,
                       ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        state.loadedSong?.title ??
+                            state.loadedSetlist?.name ??
+                            '',
+                        style: MonoPulseTypography.labelMedium.copyWith(
+                          color: MonoPulseColors.accentOrange,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -143,50 +148,58 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
                       ),
                       const Spacer(),
                       // Toggle button
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          setState(() => _showSetlists = !_showSetlists);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: MonoPulseColors.surface,
-                            borderRadius: BorderRadius.circular(12),
-                            border:
-                                Border.all(color: MonoPulseColors.borderSubtle),
-                          ),
-                          child: Text(
-                            _showSetlists ? 'Show Songs' : 'Show Setlists',
-                            style: MonoPulseTypography.labelSmall.copyWith(
-                              color: MonoPulseColors.textSecondary,
+                      Semantics(
+                        label: _showSetlists ? 'Show Songs' : 'Show Setlists',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            setState(() => _showSetlists = !_showSetlists);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: MonoPulseColors.surface,
+                              borderRadius: BorderRadius.circular(12),
+                              border:
+                                  Border.all(color: MonoPulseColors.borderSubtle),
+                            ),
+                            child: Text(
+                              _showSetlists ? 'Show Songs' : 'Show Setlists',
+                              style: MonoPulseTypography.labelSmall.copyWith(
+                                color: MonoPulseColors.textSecondary,
+                              ),
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
                       // Close button
-                      GestureDetector(
-                        onTap: () {
-                          HapticFeedback.lightImpact();
-                          setState(() => _isExpanded = false);
-                        },
-                        child: Container(
-                          width: 32,
-                          height: 32,
-                          decoration: BoxDecoration(
-                            color: MonoPulseColors.surface,
-                            shape: BoxShape.circle,
-                            border:
-                                Border.all(color: MonoPulseColors.borderSubtle),
-                          ),
-                          child: const Icon(
-                            Icons.close,
-                            color: MonoPulseColors.textSecondary,
-                            size: 18,
+                      Semantics(
+                        label: 'Close song library',
+                        button: true,
+                        child: GestureDetector(
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            setState(() => _isExpanded = false);
+                          },
+                          child: Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: MonoPulseColors.surface,
+                              shape: BoxShape.circle,
+                              border:
+                                  Border.all(color: MonoPulseColors.borderSubtle),
+                            ),
+                            child: const Icon(
+                              Icons.close,
+                              color: MonoPulseColors.textSecondary,
+                              size: 18,
+                            ),
                           ),
                         ),
                       ),

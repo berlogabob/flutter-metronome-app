@@ -173,45 +173,50 @@ class _TimeSignatureChipState extends State<_TimeSignatureChip> {
     final isPressed = _isPressed;
     final isSelected = widget.isSelected;
 
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() => _isPressed = true);
-        HapticFeedback.vibrate();
-      },
-      onTapUp: (_) {
-        setState(() => _isPressed = false);
-        HapticFeedback.vibrate();
-        widget.onTap();
-      },
-      onTapCancel: () => setState(() => _isPressed = false),
-      child: AnimatedScale(
-        scale: isPressed ? 0.95 : 1.0,
-        duration: MonoPulseAnimation.durationShort,
-        curve: MonoPulseAnimation.curveCustom,
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: MonoPulseSpacing.lg,
-            vertical: MonoPulseSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: isSelected
-                ? MonoPulseColors.accentOrange.withValues(alpha: 0.15)
-                : MonoPulseColors.blackElevated,
-            borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
-            border: Border.all(
-              color: isSelected
-                  ? MonoPulseColors.accentOrange
-                  : MonoPulseColors.borderDefault,
-              width: 1,
+    return Semantics(
+      label: 'Time signature ${widget.label}${isSelected ? ", selected" : ""}',
+      button: true,
+      selected: isSelected,
+      child: GestureDetector(
+        onTapDown: (_) {
+          setState(() => _isPressed = true);
+          HapticFeedback.vibrate();
+        },
+        onTapUp: (_) {
+          setState(() => _isPressed = false);
+          HapticFeedback.vibrate();
+          widget.onTap();
+        },
+        onTapCancel: () => setState(() => _isPressed = false),
+        child: AnimatedScale(
+          scale: isPressed ? 0.95 : 1.0,
+          duration: MonoPulseAnimation.durationShort,
+          curve: MonoPulseAnimation.curveCustom,
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: MonoPulseSpacing.lg,
+              vertical: MonoPulseSpacing.sm,
             ),
-          ),
-          child: Text(
-            widget.label,
-            style: MonoPulseTypography.labelMedium.copyWith(
+            decoration: BoxDecoration(
               color: isSelected
-                  ? MonoPulseColors.accentOrange
-                  : MonoPulseColors.textSecondary,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  ? MonoPulseColors.accentOrange.withValues(alpha: 0.15)
+                  : MonoPulseColors.blackElevated,
+              borderRadius: BorderRadius.circular(MonoPulseRadius.huge),
+              border: Border.all(
+                color: isSelected
+                    ? MonoPulseColors.accentOrange
+                    : MonoPulseColors.borderDefault,
+                width: 1,
+              ),
+            ),
+            child: Text(
+              widget.label,
+              style: MonoPulseTypography.labelMedium.copyWith(
+                color: isSelected
+                    ? MonoPulseColors.accentOrange
+                    : MonoPulseColors.textSecondary,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+              ),
             ),
           ),
         ),

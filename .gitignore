@@ -46,3 +46,10 @@ app.*.map.json
 
 # Environment Variables (Security - never commit actual .env file)
 .env
+
+# Firebase Configuration (Security - templates are OK, but ignore files with real keys)
+# Note: google-services.json and GoogleService-Info.plist templates are included
+# with placeholder values. Replace with actual config from Firebase Console for production.
+# Uncomment these lines if you want to ignore the files entirely:
+# android/app/google-services.json
+# ios/Runner/GoogleService-Info.plist

@@ -77,44 +77,49 @@ class _FrequencyControlsWidgetState
         child: Column(
           children: [
             // Collapsible Advanced Settings Header
-            InkWell(
-              onTap: () {
-                HapticFeedback.lightImpact();
-                setState(() {
-                  _isExpanded = !_isExpanded;
-                });
-              },
-              borderRadius: BorderRadius.circular(MonoPulseRadius.medium),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: MonoPulseSpacing.sm,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          _isExpanded ? Icons.expand_less : Icons.expand_more,
-                          size: 20,
-                          color: MonoPulseColors.textSecondary,
-                        ),
-                        const SizedBox(width: MonoPulseSpacing.sm),
-                        Text(
-                          'Advanced Settings',
-                          style: MonoPulseTypography.labelLarge.copyWith(
-                            color: MonoPulseColors.textHighEmphasis,
-                            fontWeight: FontWeight.w600,
+            Semantics(
+              label: 'Advanced Settings. ${_isExpanded ? "Expanded" : "Collapsed"}. Tap to toggle.',
+              button: true,
+              expanded: _isExpanded,
+              child: InkWell(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  setState(() {
+                    _isExpanded = !_isExpanded;
+                  });
+                },
+                borderRadius: BorderRadius.circular(MonoPulseRadius.medium),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: MonoPulseSpacing.sm,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            _isExpanded ? Icons.expand_less : Icons.expand_more,
+                            size: 20,
+                            color: MonoPulseColors.textSecondary,
                           ),
-                        ),
-                      ],
-                    ),
-                    const Icon(
-                      Icons.tune,
-                      size: 20,
-                      color: MonoPulseColors.textTertiary,
-                    ),
-                  ],
+                          const SizedBox(width: MonoPulseSpacing.sm),
+                          Text(
+                            'Advanced Settings',
+                            style: MonoPulseTypography.labelLarge.copyWith(
+                              color: MonoPulseColors.textHighEmphasis,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Icon(
+                        Icons.tune,
+                        size: 20,
+                        color: MonoPulseColors.textTertiary,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -167,31 +172,43 @@ class _FrequencyControlsWidgetState
                       ),
                       const SizedBox(width: MonoPulseSpacing.md),
                       Expanded(
-                        child: SliderTheme(
-                          data: SliderThemeData(
-                            trackHeight: 2,
-                            activeTrackColor: MonoPulseColors.accentOrange,
-                            inactiveTrackColor: MonoPulseColors.borderDefault,
-                            thumbColor: MonoPulseColors.accentOrange,
-                            overlayColor: MonoPulseColors.accentOrange
-                                .withValues(alpha: 0.2),
-                            thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 8,
+                        child: Semantics(
+                          label: 'Volume slider',
+                          value: '${(state.volume * 100).round()} percent',
+                          increasedValue: '${((state.volume + 0.1) * 100).clamp(0, 100).round()} percent',
+                          decreasedValue: '${((state.volume - 0.1) * 100).clamp(0, 100).round()} percent',
+                          onIncrease: () {
+                            metronome.setVolume((state.volume + 0.1).clamp(0.0, 1.0));
+                          },
+                          onDecrease: () {
+                            metronome.setVolume((state.volume - 0.1).clamp(0.0, 1.0));
+                          },
+                          child: SliderTheme(
+                            data: SliderThemeData(
+                              trackHeight: 2,
+                              activeTrackColor: MonoPulseColors.accentOrange,
+                              inactiveTrackColor: MonoPulseColors.borderDefault,
+                              thumbColor: MonoPulseColors.accentOrange,
+                              overlayColor: MonoPulseColors.accentOrange
+                                  .withValues(alpha: 0.2),
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 8,
+                              ),
+                              overlayShape: const RoundSliderOverlayShape(
+                                overlayRadius: 16,
+                              ),
                             ),
-                            overlayShape: const RoundSliderOverlayShape(
-                              overlayRadius: 16,
+                            child: Slider(
+                              value: state.volume,
+                              min: 0.0,
+                              max: 1.0,
+                              divisions: 10,
+                              label: '${(state.volume * 100).round()}%',
+                              onChanged: (value) {
+                                HapticFeedback.lightImpact();
+                                metronome.setVolume(value);
+                              },
                             ),
-                          ),
-                          child: Slider(
-                            value: state.volume,
-                            min: 0.0,
-                            max: 1.0,
-                            divisions: 10,
-                            label: '${(state.volume * 100).round()}%',
-                            onChanged: (value) {
-                              HapticFeedback.lightImpact();
-                              metronome.setVolume(value);
-                            },
                           ),
                         ),
                       ),
@@ -410,33 +427,36 @@ class _WaveTypeDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: MonoPulseSpacing.md,
-        vertical: MonoPulseSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: MonoPulseColors.surfaceRaised,
-        borderRadius: BorderRadius.circular(MonoPulseRadius.medium),
-        border: Border.all(color: MonoPulseColors.borderDefault, width: 1),
-      ),
-      child: DropdownButton<String>(
-        value: value,
-        underline: const SizedBox.shrink(),
-        icon: const Icon(
-          Icons.arrow_drop_down,
-          color: MonoPulseColors.textSecondary,
-          size: 20,
+    return Semantics(
+      label: 'Wave type selector. Current: $value',
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: MonoPulseSpacing.md,
+          vertical: MonoPulseSpacing.xs,
         ),
-        items: const [
-          DropdownMenuItem(value: 'sine', child: Text('Smooth')),
-          DropdownMenuItem(value: 'square', child: Text('Sharp')),
-          DropdownMenuItem(value: 'triangle', child: Text('Soft')),
-          DropdownMenuItem(value: 'sawtooth', child: Text('Bright')),
-        ],
-        onChanged: onChanged,
-        style: MonoPulseTypography.bodyMedium.copyWith(
-          color: MonoPulseColors.textHighEmphasis,
+        decoration: BoxDecoration(
+          color: MonoPulseColors.surfaceRaised,
+          borderRadius: BorderRadius.circular(MonoPulseRadius.medium),
+          border: Border.all(color: MonoPulseColors.borderDefault, width: 1),
+        ),
+        child: DropdownButton<String>(
+          value: value,
+          underline: const SizedBox.shrink(),
+          icon: const Icon(
+            Icons.arrow_drop_down,
+            color: MonoPulseColors.textSecondary,
+            size: 20,
+          ),
+          items: const [
+            DropdownMenuItem(value: 'sine', child: Text('Smooth')),
+            DropdownMenuItem(value: 'square', child: Text('Sharp')),
+            DropdownMenuItem(value: 'triangle', child: Text('Soft')),
+            DropdownMenuItem(value: 'sawtooth', child: Text('Bright')),
+          ],
+          onChanged: onChanged,
+          style: MonoPulseTypography.bodyMedium.copyWith(
+            color: MonoPulseColors.textHighEmphasis,
+          ),
         ),
       ),
     );
