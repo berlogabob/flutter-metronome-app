@@ -66,6 +66,7 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   @override
   MetronomeState build() {
     _audioEngine = _audioEngineFactory();
+    debugPrint('[MetronomeProvider] Audio engine assigned (initialized=${_audioEngine.initialized})');
     return MetronomeState.initial();
   }
 
@@ -81,6 +82,9 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
   /// Does nothing if already playing.
   void start(int bpm, int beatsPerMeasure) {
     if (state.isPlaying) return;
+
+    final startTime = DateTime.now().millisecondsSinceEpoch;
+    debugPrint('[Metronome] START called at ${startTime}ms (audio initialized=${_audioEngine.initialized})');
 
     // Restricted BPM range: 10-260 (more realistic, reduces edge cases)
     final clampedBpm = bpm.clamp(10, 260);
@@ -523,7 +527,8 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     // Vibration on beats (synchronized with audio)
     // NOTE: This is SEPARATE from UI button haptic feedback
     if (state.vibrationEnabled && shouldPlay) {
-      debugPrint('[Metronome] Vibration TRIGGERED (enabled=${state.vibrationEnabled}, beat=$nextTick)');
+      final vibrationTime = DateTime.now().millisecondsSinceEpoch;
+      debugPrint('[Metronome] Vibration TRIGGERED at ${vibrationTime}ms (delay=${vibrationTime - startTime}ms, enabled=${state.vibrationEnabled}, beat=$nextTick)');
       HapticFeedback.vibrate();
     } else if (shouldPlay) {
       debugPrint('[Metronome] Vibration SKIPPED (enabled=${state.vibrationEnabled}, beat=$nextTick)');

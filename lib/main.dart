@@ -25,11 +25,16 @@ void main() async {
   // This ensures all samples are pre-generated and cached
   // so the first beat plays instantly (zero synthesis latency)
   _sharedAudioEngine = AudioEngine();
+  debugPrint('[Main] Starting audio engine initialization...');
   await _sharedAudioEngine!.initialize();
+  debugPrint('[Main] Audio engine READY (pre-warmed, buffers loaded)');
 
   // Share the pre-initialized instance with metronomeProvider
   // This eliminates lazy initialization delay on first start()
-  MetronomeNotifier.setAudioEngineFactory(() => _sharedAudioEngine!);
+  MetronomeNotifier.setAudioEngineFactory(() {
+    debugPrint('[Main] Providing SHARED audio engine instance');
+    return _sharedAudioEngine!;
+  });
 
   runApp(const ProviderScope(child: MetronomeApp()));
 }
