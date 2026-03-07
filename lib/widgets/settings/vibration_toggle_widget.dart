@@ -78,7 +78,6 @@ class VibrationToggleWidget extends ConsumerWidget {
               Switch(
                 value: vibrationEnabled,
                 onChanged: (value) {
-                  HapticFeedback.lightImpact();
                   notifier.setVibrationEnabled(value);
                 },
                 activeThumbColor: MonoPulseColors.accentOrange,

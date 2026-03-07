@@ -49,7 +49,6 @@ class CustomAppBar {
         button: true,
         child: GestureDetector(
           onTap: () {
-            HapticFeedback.lightImpact();
             if (onBack != null) {
               onBack();
             } else {
@@ -107,7 +106,6 @@ class CustomAppBar {
                 button: true,
                 child: GestureDetector(
                   onTap: () {
-                    HapticFeedback.lightImpact();
                     // Menu will be shown by PopupMenuButton
                   },
                   // 48px minimum touch zone
@@ -164,7 +162,6 @@ class CustomAppBar {
         button: true,
         child: GestureDetector(
           onTap: () {
-            HapticFeedback.lightImpact();
             if (onBack != null) {
               onBack();
             } else {
@@ -244,7 +241,6 @@ class CustomAppBar {
                 button: true,
                 child: GestureDetector(
                   onTap: () {
-                    HapticFeedback.lightImpact();
                   },
                   child: SizedBox(
                     width: 48,

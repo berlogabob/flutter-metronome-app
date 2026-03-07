@@ -83,7 +83,6 @@ class _MenuPopupState extends ConsumerState<MenuPopup> {
                           icon: Icons.tune_outlined,
                           label: 'Tone Settings',
                           onTap: () {
-                            HapticFeedback.lightImpact();
                             widget.onClose();
                             _openToneSettings(context);
                           },
@@ -98,7 +97,6 @@ class _MenuPopupState extends ConsumerState<MenuPopup> {
                             icon: Icons.save_outlined,
                             label: "Save to '${state.loadedSong!.title}'",
                             onTap: () {
-                              HapticFeedback.lightImpact();
                               widget.onClose();
                               _saveMetronomeToSong(context, metronome, state);
                             },
@@ -113,7 +111,6 @@ class _MenuPopupState extends ConsumerState<MenuPopup> {
                           icon: Icons.add_circle_outline,
                           label: 'Save New Song',
                           onTap: () {
-                            HapticFeedback.lightImpact();
                             widget.onClose();
                             _navigateToSaveSong(context, metronome, state.bpm);
                           },
@@ -129,7 +126,6 @@ class _MenuPopupState extends ConsumerState<MenuPopup> {
                               ? "Update '${state.loadedSong!.title}'"
                               : 'Update Song',
                           onTap: () {
-                            HapticFeedback.lightImpact();
                             widget.onClose();
                             _navigateToUpdateSong(context, metronome, state);
                           },

@@ -83,7 +83,6 @@ class _FrequencyControlsWidgetState
               expanded: _isExpanded,
               child: InkWell(
                 onTap: () {
-                  HapticFeedback.lightImpact();
                   setState(() {
                     _isExpanded = !_isExpanded;
                   });
@@ -151,7 +150,6 @@ class _FrequencyControlsWidgetState
                       _WaveTypeDropdown(
                         value: state.waveType,
                         onChanged: (value) {
-                          HapticFeedback.lightImpact();
                           if (value != null) {
                             metronome.setWaveType(value);
                           }
@@ -205,7 +203,6 @@ class _FrequencyControlsWidgetState
                               divisions: 10,
                               label: '${(state.volume * 100).round()}%',
                               onChanged: (value) {
-                                HapticFeedback.lightImpact();
                                 metronome.setVolume(value);
                               },
                             ),
@@ -251,7 +248,6 @@ class _FrequencyControlsWidgetState
                         _OrangeSwitch(
                           value: state.accentEnabled,
                           onChanged: (value) {
-                            HapticFeedback.lightImpact();
                             metronome.setAccentEnabled(value);
                           },
                         ),

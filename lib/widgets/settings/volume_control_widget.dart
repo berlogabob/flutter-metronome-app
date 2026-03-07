@@ -77,7 +77,6 @@ class VolumeControlWidget extends ConsumerWidget {
                         inactiveColor: MonoPulseColors.borderDefault,
                         label: '${(volume * 100).toInt()}%',
                         onChanged: (value) {
-                          HapticFeedback.lightImpact();
                           notifier.setVolume(value);
                         },
                       ),

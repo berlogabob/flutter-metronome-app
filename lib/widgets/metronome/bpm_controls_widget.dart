@@ -76,11 +76,9 @@ class _BpmControlsWidgetState extends ConsumerState<BpmControlsWidget> {
             child: GestureDetector(
               onTapDown: (_) {
                 setState(() => _isDecrementPressed = true);
-                HapticFeedback.vibrate();
               },
               onTapUp: (_) {
                 setState(() => _isDecrementPressed = false);
-                HapticFeedback.vibrate();
                 _setBpm(_localBpm - 1);
               },
               onTapCancel: () => setState(() => _isDecrementPressed = false),
@@ -262,11 +260,9 @@ class _BpmControlsWidgetState extends ConsumerState<BpmControlsWidget> {
             child: GestureDetector(
               onTapDown: (_) {
                 setState(() => _isIncrementPressed = true);
-                HapticFeedback.vibrate();
               },
               onTapUp: (_) {
                 setState(() => _isIncrementPressed = false);
-                HapticFeedback.vibrate();
                 _setBpm(_localBpm + 1);
               },
               onTapCancel: () => setState(() => _isIncrementPressed = false),

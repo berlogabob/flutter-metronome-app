@@ -71,7 +71,6 @@ class AccentPatternEditorWidget extends ConsumerWidget {
                 // Reset button
                 GestureDetector(
                   onTap: () {
-                    HapticFeedback.lightImpact();
                     metronome.updateAccentPatternFromTimeSignature();
                   },
                   child: Container(
@@ -113,7 +112,6 @@ class AccentPatternEditorWidget extends ConsumerWidget {
                     beatNumber: index + 1,
                     isAccent: isAccent,
                     onTap: () {
-                      HapticFeedback.lightImpact();
                       final newPattern = List<bool>.from(state.accentPattern);
                       newPattern[index] = !newPattern[index];
                       metronome.setAccentPattern(newPattern);
@@ -199,11 +197,9 @@ class _AccentToggleButtonState extends State<_AccentToggleButton>
           GestureDetector(
             onTapDown: (_) {
               setState(() => _isPressed = true);
-              HapticFeedback.vibrate();
             },
             onTapUp: (_) {
               setState(() => _isPressed = false);
-              HapticFeedback.vibrate();
               widget.onTap();
             },
             onTapCancel: () => setState(() => _isPressed = false),

@@ -72,7 +72,6 @@ class _ToneAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: IconButton(
             icon: const Icon(Icons.play_arrow),
             onPressed: () {
-              HapticFeedback.lightImpact();
               // TODO: Add audio test when audio provider is available
             },
             tooltip: 'Test Sound',

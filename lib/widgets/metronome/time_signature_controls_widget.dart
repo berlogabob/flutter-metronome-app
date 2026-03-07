@@ -93,7 +93,6 @@ class TimeSignatureControlsWidget extends ConsumerWidget {
                   label: '${ts.numerator}/${ts.denominator}',
                   isSelected: isSelected,
                   onTap: () {
-                    HapticFeedback.lightImpact();
                     metronome.setTimeSignature(ts);
                   },
                 );
@@ -180,11 +179,9 @@ class _TimeSignatureChipState extends State<_TimeSignatureChip> {
       child: GestureDetector(
         onTapDown: (_) {
           setState(() => _isPressed = true);
-          HapticFeedback.vibrate();
         },
         onTapUp: (_) {
           setState(() => _isPressed = false);
-          HapticFeedback.vibrate();
           widget.onTap();
         },
         onTapCancel: () => setState(() => _isPressed = false),

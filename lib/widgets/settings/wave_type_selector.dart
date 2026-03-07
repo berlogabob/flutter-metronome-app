@@ -72,7 +72,6 @@ class WaveTypeSelector extends ConsumerWidget {
                 ],
                 selected: {waveType},
                 onSelectionChanged: (selected) {
-                  HapticFeedback.lightImpact();
                   notifier.setWaveType(selected.first);
                 },
               ),

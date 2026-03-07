@@ -44,7 +44,6 @@ class FineAdjustmentButtons extends ConsumerWidget {
               arrowCount: 3,
               direction: -1,
               onTap: () {
-                HapticFeedback.lightImpact();
                 metronome.adjustTempoFine(-10);
               },
               isSmallScreen: isSmallScreen,
@@ -54,7 +53,6 @@ class FineAdjustmentButtons extends ConsumerWidget {
               arrowCount: 2,
               direction: -1,
               onTap: () {
-                HapticFeedback.lightImpact();
                 metronome.adjustTempoFine(-5);
               },
               isSmallScreen: isSmallScreen,
@@ -64,7 +62,6 @@ class FineAdjustmentButtons extends ConsumerWidget {
               arrowCount: 1,
               direction: -1,
               onTap: () {
-                HapticFeedback.lightImpact();
                 metronome.adjustTempoFine(-1);
               },
               isSmallScreen: isSmallScreen,
@@ -74,7 +71,6 @@ class FineAdjustmentButtons extends ConsumerWidget {
               arrowCount: 1,
               direction: 1,
               onTap: () {
-                HapticFeedback.lightImpact();
                 metronome.adjustTempoFine(1);
               },
               isSmallScreen: isSmallScreen,
@@ -84,7 +80,6 @@ class FineAdjustmentButtons extends ConsumerWidget {
               arrowCount: 2,
               direction: 1,
               onTap: () {
-                HapticFeedback.lightImpact();
                 metronome.adjustTempoFine(5);
               },
               isSmallScreen: isSmallScreen,
@@ -94,7 +89,6 @@ class FineAdjustmentButtons extends ConsumerWidget {
               arrowCount: 3,
               direction: 1,
               onTap: () {
-                HapticFeedback.lightImpact();
                 metronome.adjustTempoFine(10);
               },
               isSmallScreen: isSmallScreen,
@@ -150,11 +144,9 @@ class _TempoButtonState extends State<_TempoButton> {
       child: GestureDetector(
         onTapDown: (_) {
           setState(() => _isPressed = true);
-          HapticFeedback.vibrate();
         },
         onTapUp: (_) {
           setState(() => _isPressed = false);
-          HapticFeedback.vibrate();
           widget.onTap();
         },
         onTapCancel: () {

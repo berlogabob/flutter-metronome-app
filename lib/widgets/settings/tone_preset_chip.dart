@@ -69,7 +69,6 @@ class TonePresetChip extends ConsumerWidget {
 
   void _handleSelect(bool selected, WidgetRef ref) {
     if (selected) {
-      HapticFeedback.lightImpact();
       ref.read(globalToneConfigProvider.notifier).loadPreset(config);
     }
   }

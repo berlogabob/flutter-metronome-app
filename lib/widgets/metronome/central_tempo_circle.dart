@@ -70,7 +70,6 @@ class _CentralTempoCircleState extends ConsumerState<CentralTempoCircle>
 
   void _triggerPulse() {
     _pulseController.forward(from: 0);
-    HapticFeedback.lightImpact();
   }
 
   @override
@@ -193,7 +192,6 @@ class _CentralTempoCircleState extends ConsumerState<CentralTempoCircle>
       _startAngle = _getAngle(details.localPosition);
       _currentRotation = _cumulativeRotation;
     });
-    HapticFeedback.vibrate();
   }
 
   void _onPanUpdate(DragUpdateDetails details) {
@@ -226,7 +224,6 @@ class _CentralTempoCircleState extends ConsumerState<CentralTempoCircle>
       _cumulativeRotation = normalizedRotation;
       _isDragging = false;
     });
-    HapticFeedback.vibrate();
   }
 
   double _getAngle(Offset position, {double? size}) {
@@ -239,7 +236,6 @@ class _CentralTempoCircleState extends ConsumerState<CentralTempoCircle>
   }
 
   void _showTempoDialog(BuildContext context, MetronomeNotifier metronome) {
-    HapticFeedback.vibrate();
     showDialog(
       context: context,
       builder: (context) =>

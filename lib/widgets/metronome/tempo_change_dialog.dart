@@ -68,7 +68,6 @@ class _TempoChangeDialogState extends State<TempoChangeDialog> {
                     icon: Icons.touch_app_outlined,
                     isSelected: !_useKeyboard,
                     onTap: () {
-                      HapticFeedback.lightImpact();
                       setState(() => _useKeyboard = false);
                     },
                   ),
@@ -80,7 +79,6 @@ class _TempoChangeDialogState extends State<TempoChangeDialog> {
                     icon: Icons.keyboard_outlined,
                     isSelected: _useKeyboard,
                     onTap: () {
-                      HapticFeedback.lightImpact();
                       setState(() => _useKeyboard = true);
                     },
                   ),
@@ -201,7 +199,6 @@ class _TempoChangeDialogState extends State<TempoChangeDialog> {
                     label: 'Cancel',
                     isPrimary: false,
                     onTap: () {
-                      HapticFeedback.lightImpact();
                       Navigator.of(context).pop();
                     },
                   ),
@@ -213,7 +210,6 @@ class _TempoChangeDialogState extends State<TempoChangeDialog> {
                     isPrimary: true,
                     isEnabled: _isValid,
                     onTap: () {
-                      HapticFeedback.mediumImpact();
                       final bpm = _useKeyboard
                           ? int.tryParse(_textController.text) ?? widget.bpm
                           : widget.bpm;

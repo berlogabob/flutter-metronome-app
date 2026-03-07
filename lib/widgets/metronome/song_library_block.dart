@@ -36,7 +36,6 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
             button: true,
             child: GestureDetector(
               onTap: () {
-                HapticFeedback.lightImpact();
                 setState(() => _isExpanded = true);
               },
               child: Container(
@@ -81,7 +80,6 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
               button: true,
               child: GestureDetector(
                 onTap: () {
-                  HapticFeedback.lightImpact();
                   setState(() => _isExpanded = true);
                 },
                 child: Container(
@@ -153,7 +151,6 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
                         button: true,
                         child: GestureDetector(
                           onTap: () {
-                            HapticFeedback.lightImpact();
                             setState(() => _showSetlists = !_showSetlists);
                           },
                           child: Container(
@@ -183,7 +180,6 @@ class _SongLibraryBlockState extends ConsumerState<SongLibraryBlock> {
                         button: true,
                         child: GestureDetector(
                           onTap: () {
-                            HapticFeedback.lightImpact();
                             setState(() => _isExpanded = false);
                           },
                           child: Container(

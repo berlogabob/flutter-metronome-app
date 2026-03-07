@@ -56,7 +56,6 @@ class BottomTransportBar extends ConsumerWidget {
               child: _NavigationButton(
                 icon: Icons.fast_rewind,
                 onTap: () {
-                  HapticFeedback.lightImpact();
                   metronome.previousSetlistSong();
                 },
                 isEnabled: state.currentSetlistIndex > 0,
@@ -74,7 +73,6 @@ class BottomTransportBar extends ConsumerWidget {
             child: _PlayButton(
               isPlaying: isPlaying,
               onTap: () {
-                HapticFeedback.mediumImpact();
                 metronome.toggle();
               },
               buttonWidth: playButtonWidth,
@@ -94,7 +92,6 @@ class BottomTransportBar extends ConsumerWidget {
               child: _NavigationButton(
                 icon: Icons.fast_forward,
                 onTap: () {
-                  HapticFeedback.lightImpact();
                   metronome.nextSetlistSong();
                 },
                 isEnabled:
@@ -249,13 +246,11 @@ class _NavigationButtonState extends State<_NavigationButton> {
         onTapDown: (_) {
           if (isEnabled) {
             setState(() => _isPressed = true);
-            HapticFeedback.vibrate();
           }
         },
         onTapUp: (_) {
           if (isEnabled) {
             setState(() => _isPressed = false);
-            HapticFeedback.vibrate();
             widget.onTap();
           }
         },

@@ -68,7 +68,6 @@ class ToneResetButton extends ConsumerWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              HapticFeedback.lightImpact();
               notifier.resetToClassic();
               _showSuccessSnackBar(context);
             },

@@ -55,7 +55,6 @@ class _TimeSignatureBlockState extends ConsumerState<TimeSignatureBlock> {
             beatModes: beatModes,
             isSmallScreen: isSmallScreen,
             onToggleMode: (beatIndex, subdivisionIndex, mode) {
-              HapticFeedback.lightImpact();
               // Cycle to next mode: normal → accent → silent → normal
               final nextMode = _cycleMode(mode);
               debugPrint(
@@ -64,13 +63,11 @@ class _TimeSignatureBlockState extends ConsumerState<TimeSignatureBlock> {
               metronome.setBeatMode(beatIndex, subdivisionIndex, nextMode);
             },
             onIncrement: () {
-              HapticFeedback.lightImpact();
               if (beats < 12) {
                 metronome.setAccentBeats(beats + 1);
               }
             },
             onDecrement: () {
-              HapticFeedback.lightImpact();
               if (beats > 1) {
                 metronome.setAccentBeats(beats - 1);
               }
@@ -86,7 +83,6 @@ class _TimeSignatureBlockState extends ConsumerState<TimeSignatureBlock> {
             beatModes: beatModes,
             isSmallScreen: isSmallScreen,
             onToggleMode: (beatIndex, subdivisionIndex, mode) {
-              HapticFeedback.lightImpact();
               final nextMode = _cycleMode(mode);
               debugPrint(
                 'Beat $beatIndex, Subdivision $subdivisionIndex: $mode → $nextMode',
@@ -94,13 +90,11 @@ class _TimeSignatureBlockState extends ConsumerState<TimeSignatureBlock> {
               metronome.setBeatMode(beatIndex, subdivisionIndex, nextMode);
             },
             onIncrement: () {
-              HapticFeedback.lightImpact();
               if (subdivisions < 12) {
                 metronome.setRegularBeats(subdivisions + 1);
               }
             },
             onDecrement: () {
-              HapticFeedback.lightImpact();
               if (subdivisions > 1) {
                 metronome.setRegularBeats(subdivisions - 1);
               }
