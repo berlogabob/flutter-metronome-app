@@ -86,8 +86,11 @@ class AudioEngine implements IAudioEngine {
         }
       }
 
+      // ✅ PRE-WARM PLAYERS - Eliminates platform channel initialization latency
+      await _preWarmPlayers();
+
       _initialized = true;
-      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers');
+      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers and ${_players.length} pre-warmed players');
     } catch (e) {
       debugPrint('[AudioEngine] Failed to initialize: $e');
       rethrow;

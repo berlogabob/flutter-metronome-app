@@ -521,8 +521,12 @@ class MetronomeNotifier extends Notifier<MetronomeState> {
     }
 
     // Vibration on beats (synchronized with audio)
+    // NOTE: This is SEPARATE from UI button haptic feedback
     if (state.vibrationEnabled && shouldPlay) {
+      debugPrint('[Metronome] Vibration TRIGGERED (enabled=${state.vibrationEnabled}, beat=$nextTick)');
       HapticFeedback.vibrate();
+    } else if (shouldPlay) {
+      debugPrint('[Metronome] Vibration SKIPPED (enabled=${state.vibrationEnabled}, beat=$nextTick)');
     }
 
     state = state.copyWith(currentBeat: nextTick);
