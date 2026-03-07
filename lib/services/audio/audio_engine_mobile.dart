@@ -74,10 +74,6 @@ class AudioEngine implements IAudioEngine {
         _players.add(player);
       }
 
-      // Pre-warm players to trigger platform channel initialization
-      // This eliminates Android-specific latency on first play
-      await _preWarmPlayers();
-
       // Pre-generate ALL sounds ONCE at startup
       for (final freq in _frequencies) {
         for (final wave in _waveTypes) {
@@ -91,7 +87,7 @@ class AudioEngine implements IAudioEngine {
       }
 
       _initialized = true;
-      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers and 4 pre-warmed players');
+      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers');
     } catch (e) {
       debugPrint('[AudioEngine] Failed to initialize: $e');
       rethrow;
