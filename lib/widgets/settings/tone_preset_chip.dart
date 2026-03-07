@@ -8,59 +8,58 @@
 /// TonePresetChip(
 ///   name: 'Classic',
 ///   config: MetronomeToneConfig.classic,
-///   notifier: notifier,
 /// ),
 /// ```
 library tone_preset_chip;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/mono_pulse_theme.dart';
 import '../../providers/global_tone_config_provider.dart';
 import '../../models/metronome_tone_config.dart';
 
 /// Individual chip for selecting a tone preset.
-class TonePresetChip extends StatefulWidget {
+///
+/// Uses [Selector] to only rebuild when this specific preset's
+/// selection state changes, not on every config update.
+class TonePresetChip extends ConsumerWidget {
   /// Display name of the preset.
   final String name;
 
   /// Configuration to apply when selected.
   final MetronomeToneConfig config;
 
-  /// Notifier to update tone configuration.
-  final GlobalToneConfigNotifier notifier;
-
   const TonePresetChip({
     super.key,
     required this.name,
     required this.config,
-    required this.notifier,
   });
 
   @override
-  State<TonePresetChip> createState() => _TonePresetChipState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Use Selector to only rebuild when this preset's selection state changes
+    final isSelected = ref.watch(
+      globalToneConfigProvider.select(
+        (asyncConfig) => asyncConfig.value?.matchesPreset(config) ?? false,
+      ),
+    );
 
-class _TonePresetChipState extends State<TonePresetChip> {
-  bool _isSelected = false;
-
-  @override
-  Widget build(BuildContext context) {
     return Semantics(
-      label: '${widget.name} tone preset${_isSelected ? ", selected" : ""}',
+      label: '$name tone preset${isSelected ? ", selected" : ""}',
       child: FilterChip(
-        label: Text(widget.name),
-        onSelected: _handleSelect,
-        selected: _isSelected,
+        label: Text(name),
+        onSelected: (selected) => _handleSelect(selected, ref),
+        selected: isSelected,
         selectedColor: MonoPulseColors.accentOrangeSubtle,
         checkmarkColor: MonoPulseColors.accentOrange,
         labelStyle: TextStyle(
-          color: _isSelected
+          color: isSelected
               ? MonoPulseColors.accentOrange
               : MonoPulseColors.textPrimary,
         ),
         side: BorderSide(
-          color: _isSelected
+          color: isSelected
               ? MonoPulseColors.accentOrange
               : MonoPulseColors.borderDefault,
         ),
@@ -68,11 +67,25 @@ class _TonePresetChipState extends State<TonePresetChip> {
     );
   }
 
-  void _handleSelect(bool selected) {
-    setState(() => _isSelected = selected);
+  void _handleSelect(bool selected, WidgetRef ref) {
     if (selected) {
       HapticFeedback.lightImpact();
-      widget.notifier.loadPreset(widget.config);
+      ref.read(globalToneConfigProvider.notifier).loadPreset(config);
     }
+  }
+}
+
+/// Extension to check if current config matches a preset
+extension on MetronomeToneConfig {
+  /// Checks if this config matches the given preset config
+  bool matchesPreset(MetronomeToneConfig preset) {
+    return mainRegularFreq == preset.mainRegularFreq &&
+        mainAccentFreq == preset.mainAccentFreq &&
+        subRegularFreq == preset.subRegularFreq &&
+        subAccentFreq == preset.subAccentFreq &&
+        dividerRegularFreq == preset.dividerRegularFreq &&
+        dividerAccentFreq == preset.dividerAccentFreq &&
+        waveType == preset.waveType &&
+        volume == preset.volume;
   }
 }

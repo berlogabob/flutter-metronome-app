@@ -69,17 +69,30 @@ class MetronomeToneConfig {
   double getFrequency(BeatType beatType, AccentState accent) {
     switch (beatType) {
       case BeatType.main:
-        return accent == AccentState.accent 
-            ? mainAccentFreq 
+        return accent == AccentState.accent
+            ? mainAccentFreq
             : mainRegularFreq;
       case BeatType.sub:
-        return accent == AccentState.accent 
-            ? subAccentFreq 
+        return accent == AccentState.accent
+            ? subAccentFreq
             : subRegularFreq;
       case BeatType.divider:
-        return accent == AccentState.accent 
-            ? dividerAccentFreq 
+        return accent == AccentState.accent
+            ? dividerAccentFreq
             : dividerRegularFreq;
+    }
+  }
+
+  /// Get both regular and accent frequencies for a beat type
+  /// Returns (regularFreq, accentFreq) tuple
+  (double, double) getFrequenciesForBeat(BeatType beatType) {
+    switch (beatType) {
+      case BeatType.main:
+        return (mainRegularFreq, mainAccentFreq);
+      case BeatType.sub:
+        return (subRegularFreq, subAccentFreq);
+      case BeatType.divider:
+        return (dividerRegularFreq, dividerAccentFreq);
     }
   }
 

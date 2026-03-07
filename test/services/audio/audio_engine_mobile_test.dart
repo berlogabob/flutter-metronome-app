@@ -117,12 +117,16 @@ void main() {
         await audioEngine.initialize();
         expect(audioEngine.initialized, isTrue);
         expect(mockPlayers.length, equals(4));
-        
+
         // Verify all players were configured
+        // Note: setVolume is called 3 times per player due to pre-warming:
+        // 1. Initial setup (1.0)
+        // 2. Pre-warm silent (0.0)
+        // 3. Pre-warm restore (1.0)
         for (final player in mockPlayers) {
           expect(player.setReleaseModeCallCount, equals(1));
           expect(player.lastReleaseMode, equals(ReleaseMode.stop));
-          expect(player.setVolumeCallCount, equals(1));
+          expect(player.setVolumeCallCount, equals(3));  // Updated for pre-warm
           expect(player.lastVolume, equals(1.0));
         }
       });
@@ -142,6 +146,16 @@ void main() {
         // 6 frequencies × 4 wave types = 24 buffers
         expect(audioEngine.initialized, isTrue);
       });
+
+      test('initialize() pre-warms players with silent buffer', () async {
+        await audioEngine.initialize();
+        // Each player should have play called during pre-warm (silent buffer)
+        // Plus the play calls from setVolume (3 times per player)
+        for (final player in mockPlayers) {
+          // Pre-warm calls play() with silent buffer
+          expect(player.playCallCount, greaterThan(0));
+        }
+      });
     });
 
     group('playClick - frequency variations', () {
@@ -157,7 +171,7 @@ void main() {
           accentFrequency: 1600,
           beatFrequency: 800,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with regular beat uses beat frequency', () async {
@@ -168,7 +182,7 @@ void main() {
           accentFrequency: 1600,
           beatFrequency: 800,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with default accent frequency', () async {
@@ -177,7 +191,7 @@ void main() {
           waveType: 'sine',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with default beat frequency', () async {
@@ -186,7 +200,7 @@ void main() {
           waveType: 'sine',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with all supported frequencies', () async {
@@ -199,8 +213,9 @@ void main() {
             beatFrequency: freq,
           );
         }
+        // 6 frequency calls + 4 pre-warm calls = 10 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(6));
+        expect(totalCalls, equals(10));
       });
 
       test('playClick with custom accent frequency', () async {
@@ -210,7 +225,7 @@ void main() {
           volume: 0.5,
           accentFrequency: 2200,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with custom beat frequency', () async {
@@ -220,7 +235,7 @@ void main() {
           volume: 0.5,
           beatFrequency: 1760,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
     });
 
@@ -235,7 +250,7 @@ void main() {
           waveType: 'sine',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with square wave', () async {
@@ -244,7 +259,7 @@ void main() {
           waveType: 'square',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with triangle wave', () async {
@@ -253,7 +268,7 @@ void main() {
           waveType: 'triangle',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with sawtooth wave', () async {
@@ -262,7 +277,7 @@ void main() {
           waveType: 'sawtooth',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with uppercase wave type', () async {
@@ -271,7 +286,7 @@ void main() {
           waveType: 'SINE',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with mixed case wave type', () async {
@@ -280,7 +295,7 @@ void main() {
           waveType: 'Square',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
     });
 
@@ -295,7 +310,7 @@ void main() {
           waveType: 'sine',
           volume: 0.0,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with maximum volume', () async {
@@ -304,7 +319,7 @@ void main() {
           waveType: 'sine',
           volume: 1.0,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with medium volume', () async {
@@ -313,7 +328,7 @@ void main() {
           waveType: 'sine',
           volume: 0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick clamps volume above 1.0', () async {
@@ -322,7 +337,7 @@ void main() {
           waveType: 'sine',
           volume: 1.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick clamps volume below 0.0', () async {
@@ -331,7 +346,7 @@ void main() {
           waveType: 'sine',
           volume: -0.5,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with extreme high volume', () async {
@@ -340,7 +355,7 @@ void main() {
           waveType: 'sine',
           volume: 10.0,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with extreme low volume', () async {
@@ -349,7 +364,7 @@ void main() {
           waveType: 'sine',
           volume: -10.0,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
     });
 
@@ -368,8 +383,9 @@ void main() {
             accentFrequency: 1600,
           );
         }
+        // 4 wave type calls + 4 pre-warm calls = 8 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(4));
+        expect(totalCalls, equals(8));
       });
 
       test('playClick exercises all wave types with regular beats', () async {
@@ -382,8 +398,9 @@ void main() {
             beatFrequency: 800,
           );
         }
+        // 4 wave type calls + 4 pre-warm calls = 8 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(4));
+        expect(totalCalls, equals(8));
       });
 
       test('playClick exercises all frequencies with sine wave', () async {
@@ -397,8 +414,9 @@ void main() {
             beatFrequency: freq,
           );
         }
+        // 6 frequency calls + 4 pre-warm calls = 10 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(6));
+        expect(totalCalls, equals(10));
       });
 
       test('playClick with different volume levels', () async {
@@ -410,8 +428,9 @@ void main() {
             volume: vol,
           );
         }
+        // 5 volume calls + 4 pre-warm calls = 9 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(5));
+        expect(totalCalls, equals(9));
       });
 
       test('playClick generates sounds for all buffer combinations', () async {
@@ -429,8 +448,9 @@ void main() {
             );
           }
         }
+        // 24 buffer combination calls + 4 pre-warm calls = 28 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(24));
+        expect(totalCalls, equals(28));
       });
     });
 
@@ -447,9 +467,9 @@ void main() {
             volume: 0.5,
           );
         }
-        // Each of 4 players should be called twice
+        // 8 calls / 4 players = 2 each + 1 pre-warm = 3 each
         for (final player in mockPlayers) {
-          expect(player.playCallCount, equals(2));
+          expect(player.playCallCount, equals(3));
         }
       });
 
@@ -465,8 +485,8 @@ void main() {
           );
         }
         await Future.wait(futures);
-        // 10 calls distributed across 4 players
-        expect(mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount), equals(10));
+        // 10 calls + 4 pre-warm = 14 total
+        expect(mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount), equals(14));
       });
 
       test('playClick cycles through all players in pool', () async {
@@ -477,9 +497,9 @@ void main() {
             volume: 0.5,
           );
         }
-        // Each of 4 players should be called 4 times
+        // 16 calls / 4 players = 4 each + 1 pre-warm = 5 each
         for (final player in mockPlayers) {
-          expect(player.playCallCount, equals(4));
+          expect(player.playCallCount, equals(5));
         }
       });
 
@@ -491,9 +511,9 @@ void main() {
             volume: 0.5,
           );
         }
-        // 20 calls distributed across 4 players (5 each)
+        // 20 calls distributed across 4 players (5 each) + 1 pre-warm each = 6 each
         for (final player in mockPlayers) {
-          expect(player.playCallCount, equals(5));
+          expect(player.playCallCount, equals(6));
         }
       });
     });
@@ -511,7 +531,7 @@ void main() {
           accentFrequency: null,
           beatFrequency: null,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick works when not explicitly initialized', () async {
@@ -538,7 +558,7 @@ void main() {
           volume: 0.5,
           beatFrequency: 100,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
 
       test('playClick with very high frequency', () async {
@@ -548,7 +568,7 @@ void main() {
           volume: 0.5,
           accentFrequency: 4000,
         );
-        expect(mockPlayers.first.playCallCount, equals(1));
+        expect(mockPlayers.first.playCallCount, equals(2));
       });
     });
 
@@ -559,8 +579,9 @@ void main() {
 
       test('playTest plays accented and regular clicks', () async {
         await audioEngine.playTest();
+        // playTest calls playClick twice (accent + regular) + 4 pre-warm = 6 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(2));
+        expect(totalCalls, equals(6));
       });
 
       test('playTest works without prior initialization', () async {
@@ -684,8 +705,9 @@ void main() {
           beatFrequency: 880,
         );
 
+        // 4 playClick calls + 4 pre-warm = 8 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(4));
+        expect(totalCalls, equals(8));
       });
 
       test('_floatToPcm16 converts samples to bytes', () async {
@@ -704,8 +726,9 @@ void main() {
           accentFrequency: 1600,
         );
 
+        // 2 playClick calls + 4 pre-warm = 6 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(2));
+        expect(totalCalls, equals(6));
       });
 
       test('_calculateEnvelope produces smooth envelope', () async {
@@ -724,8 +747,9 @@ void main() {
           beatFrequency: 800,
         );
 
+        // 2 playClick calls + 4 pre-warm = 6 total
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(2));
+        expect(totalCalls, equals(6));
       });
 
       test('full audio synthesis pipeline', () async {
@@ -868,9 +892,9 @@ void main() {
           );
         }
 
-        // 20 total calls distributed across 4 players (5 each)
+        // Total: 4 (first loop) + 16 (subdivisions) + 4 (pre-warm) = 24 play calls
         final totalCalls = mockPlayers.fold<int>(0, (sum, p) => sum + p.playCallCount);
-        expect(totalCalls, equals(20));
+        expect(totalCalls, equals(24));  // 4 + 16 + 4 pre-warm
       });
     });
   });

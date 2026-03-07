@@ -2,7 +2,13 @@
     <application
         android:label="metronome_app"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:enableOnBackInvokedCallback="true">
+        <!-- Audio latency optimization: Use game audio usage for lower latency -->
+        <meta-data
+            android:name="android.support.AUDIO_ATTRIBUTES_USAGE"
+            android:value="2" />
+        <!-- 2 = USAGE_GAME - optimized for low-latency audio playback -->
         <activity
             android:name=".MainActivity"
             android:exported="true"

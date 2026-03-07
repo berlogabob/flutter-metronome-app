@@ -11,23 +11,29 @@ MetronomeState _$MetronomeStateFromJson(Map<String, dynamic> json) =>
       isPlaying: json['isPlaying'] as bool? ?? false,
       bpm: (json['bpm'] as num?)?.toInt() ?? 120,
       currentBeat: (json['currentBeat'] as num?)?.toInt() ?? 0,
-      timeSignature:
-          TimeSignature.fromJson(json['timeSignature'] as Map<String, dynamic>),
+      timeSignature: TimeSignature.fromJson(
+        json['timeSignature'] as Map<String, dynamic>,
+      ),
       waveType: json['waveType'] as String? ?? 'sine',
       volume: (json['volume'] as num?)?.toDouble() ?? 0.5,
       accentEnabled: json['accentEnabled'] as bool? ?? true,
       accentFrequency: (json['accentFrequency'] as num?)?.toDouble() ?? 1600,
       beatFrequency: (json['beatFrequency'] as num?)?.toDouble() ?? 800,
-      accentPattern: (json['accentPattern'] as List<dynamic>?)
+      accentPattern:
+          (json['accentPattern'] as List<dynamic>?)
               ?.map((e) => e as bool)
               .toList() ??
           [],
       accentBeats: (json['accentBeats'] as num?)?.toInt() ?? 4,
       regularBeats: (json['regularBeats'] as num?)?.toInt() ?? 1,
-      beatModes: (json['beatModes'] as List<dynamic>?)
-              ?.map((e) => (e as List<dynamic>)
-                  .map((e) => $enumDecode(_$BeatModeEnumMap, e))
-                  .toList())
+      vibrationEnabled: json['vibrationEnabled'] as bool? ?? false,
+      beatModes:
+          (json['beatModes'] as List<dynamic>?)
+              ?.map(
+                (e) => (e as List<dynamic>)
+                    .map((e) => $enumDecode(_$BeatModeEnumMap, e))
+                    .toList(),
+              )
               .toList() ??
           [],
       loadedSong: json['loadedSong'] == null
@@ -53,6 +59,7 @@ Map<String, dynamic> _$MetronomeStateToJson(MetronomeState instance) =>
       'accentPattern': instance.accentPattern,
       'accentBeats': instance.accentBeats,
       'regularBeats': instance.regularBeats,
+      'vibrationEnabled': instance.vibrationEnabled,
       'beatModes': instance.beatModes
           .map((e) => e.map((e) => _$BeatModeEnumMap[e]!).toList())
           .toList(),

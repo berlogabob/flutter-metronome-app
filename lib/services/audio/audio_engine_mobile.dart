@@ -74,6 +74,10 @@ class AudioEngine implements IAudioEngine {
         _players.add(player);
       }
 
+      // Pre-warm players to trigger platform channel initialization
+      // This eliminates Android-specific latency on first play
+      await _preWarmPlayers();
+
       // Pre-generate ALL sounds ONCE at startup
       for (final freq in _frequencies) {
         for (final wave in _waveTypes) {
@@ -87,10 +91,44 @@ class AudioEngine implements IAudioEngine {
       }
 
       _initialized = true;
-      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers');
+      debugPrint('[AudioEngine] Mobile audio engine initialized with ${_buffers.length} pre-loaded buffers and 4 pre-warmed players');
     } catch (e) {
       debugPrint('[AudioEngine] Failed to initialize: $e');
       rethrow;
+    }
+  }
+
+  /// Pre-warm audio players to eliminate platform channel initialization latency
+  ///
+  /// On Android, the first AudioPlayer.play() call triggers native initialization
+  /// which can take 100-200ms per player. By pre-warming during app startup,
+  /// we eliminate this latency from the critical path (user pressing START).
+  Future<void> _preWarmPlayers() async {
+    try {
+      // Generate a silent buffer for warming (1ms of silence)
+      final silentBuffer = _generateClickSound(
+        frequency: 1.0,  // Inaudible frequency
+        waveType: 'sine',
+        volume: 0.0,  // Silent
+      );
+
+      // Play silent buffer on each player to trigger native initialization
+      for (int i = 0; i < _players.length; i++) {
+        final player = _players[i];
+        // Set volume to 0 for warm-up (silent)
+        await player.setVolume(0.0);
+        // Play silent buffer - triggers platform channel init without sound
+        await player.play(BytesSource(silentBuffer), volume: 0.0);
+        // Small delay to ensure initialization completes
+        await Future.delayed(const Duration(milliseconds: 10));
+        // Restore volume
+        await player.setVolume(1.0);
+      }
+
+      debugPrint('[AudioEngine] Pre-warmed ${_players.length} audio players');
+    } catch (e) {
+      // Non-critical: pre-warming failure doesn't break functionality
+      debugPrint('[AudioEngine] Pre-warm failed (non-critical): $e');
     }
   }
 

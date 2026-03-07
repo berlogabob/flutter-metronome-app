@@ -8,49 +8,53 @@
 /// BeatFrequencyControl(
 ///   label: 'Main Beat',
 ///   subtitle: 'First beat of measure',
-///   regularFreq: 1600,
-///   accentFreq: 2060,
-///   onRegularChanged: (freq) => ...,
-///   onAccentChanged: (freq) => ...,
+///   beatType: BeatType.main,
 /// ),
 /// ```
 library beat_frequency_control;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/mono_pulse_theme.dart';
+import '../../providers/global_tone_config_provider.dart';
+import '../../models/metronome_tone_config.dart';
 
 /// Frequency control widget for a single beat type.
-class BeatFrequencyControl extends StatelessWidget {
+///
+/// Uses [Selector] to only rebuild when its specific frequencies change,
+/// not when other beat types or volume/waveType change.
+class BeatFrequencyControl extends ConsumerWidget {
   /// Display label for the beat type.
   final String label;
 
   /// Subtitle describing the beat type.
   final String subtitle;
 
-  /// Current regular frequency in Hz.
-  final double regularFreq;
-
-  /// Current accent frequency in Hz.
-  final double accentFreq;
-
-  /// Callback when regular frequency changes.
-  final ValueChanged<double> onRegularChanged;
-
-  /// Callback when accent frequency changes.
-  final ValueChanged<double> onAccentChanged;
+  /// Type of beat this control manages.
+  final BeatType beatType;
 
   const BeatFrequencyControl({
     super.key,
     required this.label,
     required this.subtitle,
-    required this.regularFreq,
-    required this.accentFreq,
-    required this.onRegularChanged,
-    required this.onAccentChanged,
+    required this.beatType,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Use Selector to only get the frequencies we care about
+    final frequencies = ref.watch(
+      globalToneConfigProvider.select(
+        (asyncConfig) => asyncConfig.value?.getFrequenciesForBeat(beatType),
+      ),
+    );
+
+    if (frequencies == null) {
+      return const SizedBox.shrink();
+    }
+
+    final notifier = ref.read(globalToneConfigProvider.notifier);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -80,18 +84,18 @@ class BeatFrequencyControl extends StatelessWidget {
         const SizedBox(height: MonoPulseSpacing.lg),
         _FrequencySlider(
           label: 'Regular',
-          value: regularFreq,
+          value: frequencies.$1,
           min: 400,
           max: 2000,
-          onChanged: onRegularChanged,
+          onChanged: (freq) => notifier.updateFrequency(beatType, AccentState.regular, freq),
         ),
         const SizedBox(height: MonoPulseSpacing.md),
         _FrequencySlider(
           label: 'Accent',
-          value: accentFreq,
+          value: frequencies.$2,
           min: 600,
           max: 3000,
-          onChanged: onAccentChanged,
+          onChanged: (freq) => notifier.updateFrequency(beatType, AccentState.accent, freq),
         ),
       ],
     );
@@ -99,7 +103,9 @@ class BeatFrequencyControl extends StatelessWidget {
 }
 
 /// Individual frequency slider with value display.
-class _FrequencySlider extends StatelessWidget {
+///
+/// Uses ValueNotifier for slider value to avoid rebuilding on drag.
+class _FrequencySlider extends StatefulWidget {
   final String label;
   final double value;
   final double min;
@@ -115,24 +121,46 @@ class _FrequencySlider extends StatelessWidget {
   });
 
   @override
+  State<_FrequencySlider> createState() => _FrequencySliderState();
+}
+
+class _FrequencySliderState extends State<_FrequencySlider> {
+  late double _sliderValue;
+
+  @override
+  void initState() {
+    super.initState();
+    _sliderValue = widget.value;
+  }
+
+  @override
+  void didUpdateWidget(_FrequencySlider oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only update if the value changed externally (not from user dragging)
+    if (oldWidget.value != widget.value) {
+      _sliderValue = widget.value;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: '$label frequency slider',
-      value: '${value.toInt()} Hz',
-      increasedValue: '${(value + (max - min) / 32).toInt()} Hz',
-      decreasedValue: '${(value - (max - min) / 32).toInt()} Hz',
+      label: '${widget.label} frequency slider',
+      value: '${_sliderValue.toInt()} Hz',
+      increasedValue: '${(_sliderValue + (widget.max - widget.min) / 32).toInt()} Hz',
+      decreasedValue: '${(_sliderValue - (widget.max - widget.min) / 32).toInt()} Hz',
       onIncrease: () {
-        onChanged((value + (max - min) / 32).clamp(min, max));
+        widget.onChanged((_sliderValue + (widget.max - widget.min) / 32).clamp(widget.min, widget.max));
       },
       onDecrease: () {
-        onChanged((value - (max - min) / 32).clamp(min, max));
+        widget.onChanged((_sliderValue - (widget.max - widget.min) / 32).clamp(widget.min, widget.max));
       },
       child: Row(
         children: [
           SizedBox(
             width: 70,
             child: Text(
-              label,
+              widget.label,
               style: MonoPulseTypography.bodyMedium.copyWith(
                 color: MonoPulseColors.textSecondary,
               ),
@@ -140,20 +168,23 @@ class _FrequencySlider extends StatelessWidget {
           ),
           Expanded(
             child: Slider(
-              value: value,
-              min: min,
-              max: max,
+              value: _sliderValue,
+              min: widget.min,
+              max: widget.max,
               divisions: 32,
               activeColor: MonoPulseColors.accentOrange,
               inactiveColor: MonoPulseColors.borderDefault,
-              label: '${value.toInt()} Hz',
-              onChanged: onChanged,
+              label: '${_sliderValue.toInt()} Hz',
+              onChanged: (value) {
+                setState(() => _sliderValue = value);
+                widget.onChanged(value);
+              },
             ),
           ),
           SizedBox(
             width: 60,
             child: Text(
-              '${value.toInt()} Hz',
+              '${_sliderValue.toInt()} Hz',
               style: MonoPulseTypography.labelMedium,
               textAlign: TextAlign.right,
             ),

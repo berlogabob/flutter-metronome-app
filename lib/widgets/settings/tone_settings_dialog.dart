@@ -19,12 +19,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/mono_pulse_theme.dart';
-import '../../providers/global_tone_config_provider.dart';
 import 'tone_preset_selector.dart';
 import 'tone_matrix_widget.dart';
 import 'wave_type_selector.dart';
 import 'volume_control_widget.dart';
 import 'tone_reset_button.dart';
+import 'vibration_toggle_widget.dart';
 
 class ToneSettingsDialog extends ConsumerWidget {
   const ToneSettingsDialog({super.key});
@@ -94,6 +94,8 @@ class _ToneSettingsContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
+          VibrationToggleWidget(),
+          SizedBox(height: MonoPulseSpacing.xxl),
           TonePresetSelector(),
           SizedBox(height: MonoPulseSpacing.xxl),
           ToneMatrixWidget(),

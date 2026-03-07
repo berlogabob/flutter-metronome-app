@@ -10,29 +10,19 @@
 library tone_preset_selector;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/mono_pulse_theme.dart';
-import '../../providers/global_tone_config_provider.dart';
 import '../../models/metronome_tone_config.dart';
 import 'tone_preset_chip.dart';
 
-/// Available tone presets with configurations.
-final _presets = [
-  ('Classic', MetronomeToneConfig.classic),
-  ('Subtle', MetronomeToneConfig.subtle),
-  ('Extreme', MetronomeToneConfig.extreme),
-  ('Wood Block', MetronomeToneConfig.woodBlock),
-  ('Electronic', MetronomeToneConfig.electronic),
-];
-
 /// Preset selection widget for tone configuration.
-class TonePresetSelector extends ConsumerWidget {
+///
+/// Uses const constructor and doesn't watch provider -
+/// individual chips handle their own selection state.
+class TonePresetSelector extends StatelessWidget {
   const TonePresetSelector({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final notifier = ref.read(globalToneConfigProvider.notifier);
-
+  Widget build(BuildContext context) {
     return Semantics(
       label: 'Tone presets. Select a preset to quickly configure tone settings.',
       child: Card(
@@ -56,13 +46,13 @@ class TonePresetSelector extends ConsumerWidget {
               Wrap(
                 spacing: MonoPulseSpacing.sm,
                 runSpacing: MonoPulseSpacing.sm,
-                children: _presets
-                    .map((preset) => TonePresetChip(
-                          name: preset.$1,
-                          config: preset.$2,
-                          notifier: notifier,
-                        ))
-                    .toList(),
+                children: const [
+                  TonePresetChip(name: 'Classic', config: MetronomeToneConfig.classic),
+                  TonePresetChip(name: 'Subtle', config: MetronomeToneConfig.subtle),
+                  TonePresetChip(name: 'Extreme', config: MetronomeToneConfig.extreme),
+                  TonePresetChip(name: 'Wood Block', config: MetronomeToneConfig.woodBlock),
+                  TonePresetChip(name: 'Electronic', config: MetronomeToneConfig.electronic),
+                ],
               ),
             ],
           ),

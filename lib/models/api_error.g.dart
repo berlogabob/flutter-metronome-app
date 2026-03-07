@@ -7,16 +7,16 @@ part of 'api_error.dart';
 // **************************************************************************
 
 ApiError _$ApiErrorFromJson(Map<String, dynamic> json) => ApiError(
-      type: $enumDecode(_$ErrorTypeEnumMap, json['type']),
-      message: json['message'] as String,
-      details: json['details'] as String?,
-    );
+  type: $enumDecode(_$ErrorTypeEnumMap, json['type']),
+  message: json['message'] as String,
+  details: json['details'] as String?,
+);
 
 Map<String, dynamic> _$ApiErrorToJson(ApiError instance) => <String, dynamic>{
-      'type': _$ErrorTypeEnumMap[instance.type]!,
-      'message': instance.message,
-      'details': instance.details,
-    };
+  'type': _$ErrorTypeEnumMap[instance.type]!,
+  'message': instance.message,
+  'details': instance.details,
+};
 
 const _$ErrorTypeEnumMap = {
   ErrorType.network: 'network',

@@ -73,6 +73,10 @@ class MetronomeState {
   @JsonKey(defaultValue: 1)
   final int regularBeats;
 
+  /// Whether vibration on beats is enabled.
+  @JsonKey(defaultValue: false)
+  final bool vibrationEnabled;
+
   /// 2D grid of beat modes for individual beat customization.
   ///
   /// First index is beat number, second index is subdivision number.
@@ -106,6 +110,7 @@ class MetronomeState {
     required this.accentPattern,
     this.accentBeats = 4,
     this.regularBeats = 1,
+    this.vibrationEnabled = false,
     this.beatModes = const [], // Empty = all normal (2D: beats × subdivisions)
     this.loadedSong,
     this.loadedSetlist,
@@ -156,6 +161,7 @@ class MetronomeState {
     List<bool>? accentPattern,
     int? accentBeats,
     int? regularBeats,
+    bool? vibrationEnabled,
     List<List<BeatMode>>? beatModes,
     Song? loadedSong,
     Setlist? loadedSetlist,
@@ -174,6 +180,7 @@ class MetronomeState {
       accentPattern: accentPattern ?? this.accentPattern,
       accentBeats: accentBeats ?? this.accentBeats,
       regularBeats: regularBeats ?? this.regularBeats,
+      vibrationEnabled: vibrationEnabled ?? this.vibrationEnabled,
       beatModes: beatModes ?? this.beatModes,
       loadedSong: loadedSong ?? this.loadedSong,
       loadedSetlist: loadedSetlist ?? this.loadedSetlist,
